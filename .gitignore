@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+pip-wheel-metadata/
+
+# Virtual env
+env/
+venv/
+.venv/
+
+# Logs and system
+*.log
+*.sqlite3
+*.DS_Store
+
+# Docker & IDE
+.vscode/
+.idea/
+
+# Env files
+.env
+**/.env
+
+# React / Node
+node_modules/
+build/
+dist/
+frontend/.env
+frontend/npm-debug.log
+frontend/yarn-error.log

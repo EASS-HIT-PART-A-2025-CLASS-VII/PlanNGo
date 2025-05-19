@@ -1,0 +1,64 @@
+# Backend, PostgreSQL ו-AI Service
+# כולל הגדרות בנייה, פורטים, נפח נתונים וחיבורים בין קונטיינרים
+
+services:
+  db:
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: trip_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - trip-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
+  backend:
+    build: ./backend
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      ai-service:
+        condition: service_started
+    env_file:
+      - ./backend/.env
+    networks:
+      - app-network
+      
+  ai-service:
+    build: ./ai_service
+    volumes:
+      - ./ai_service:/app
+    ports:
+      - "8001:8000"   # חיצוני 8001 -> פנימי 8000
+    env_file:
+      - ./ai_service/.env
+    networks:
+      - app-network
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:80"  
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+volumes:
+  trip-db-data:
+
+networks:
+  app-network:
+    driver: bridge

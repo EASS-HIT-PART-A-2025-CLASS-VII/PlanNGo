@@ -1,0 +1,8 @@
+# מחזיק את כל הספריות שהפרויקט צריך בשביל לרוץ
+
+fastapi
+uvicorn
+openai
+python-dotenv
+pydantic
+requests

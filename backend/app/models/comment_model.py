@@ -1,0 +1,18 @@
+# DB יוצר טבלת תגובות ב 
+
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Text
+from sqlalchemy.orm import relationship
+from datetime import datetime
+from app.db.database import Base
+
+class Comment(Base):
+    __tablename__ = "comments"
+
+    id = Column(Integer, primary_key=True, index=True) # מזהה תגובה
+    content = Column(Text, nullable=False)  # תוכן התגובה
+    created_at = Column(DateTime, default=datetime.utcnow)  # תאריך יצירה
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False) # מזהה משתמש
+    trip_id = Column(Integer, ForeignKey("trips.id"), nullable=False)  # מומלץ בלבד
+
+    users = relationship("User", back_populates="comments")
+    trips = relationship("Trip", back_populates="comments")

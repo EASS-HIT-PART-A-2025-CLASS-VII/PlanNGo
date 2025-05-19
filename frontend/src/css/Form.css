@@ -1,0 +1,119 @@
+.auth-page {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  background-color: #fafafa;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding-top: 2rem;
+}
+
+.auth-container {
+  background-color: #ffffff;
+   padding: 1rem 2rem 1rem 2rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+}
+
+.auth-container h2 {
+  margin-bottom: 2rem;
+  margin-top: 1rem;
+  color: #222;
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.auth-container form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.auth-container input,
+.auth-container select {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 500;
+  background-color: #fafafa;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+
+.auth-container input:focus,
+.auth-container select:focus {
+  outline: none;
+  border-color: #90caf9;
+  box-shadow: 0 0 0 2px #bbdefb;
+}
+
+.auth-container label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  color: #444;
+  font-weight: 500;
+  margin-bottom: -0.2rem;
+}
+
+.auth-container button {
+  padding: 0.85rem 1.4rem;
+  background-color: #3a8d5b;       
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.auth-container button:hover {
+  background-color: #2e6e46;
+  transform: translateY(-1px);
+}
+
+.auth-container .error {
+  color: #c0392b;
+  font-size: 0.9rem;
+  margin-top: 1rem;
+}
+
+.auth-container .success {
+  color: #27ae60;
+  font-size: 0.9rem;
+  margin-top: 1rem;
+}
+
+.link-container {
+  text-align: left;
+  margin-bottom: 1rem;
+}
+
+.link {
+  color: #2e7d32;
+  font-size: 1rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.2s ease;
+  cursor: pointer;
+}
+
+.link:hover {
+  color: #1b5e20;
+  text-decoration: underline;
+}
+
+.bottom-text {
+  margin-top: 1rem;
+  font-size: 1rem;
+  font-weight: 500;
+}

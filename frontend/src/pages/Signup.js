@@ -1,0 +1,91 @@
+import { useState } from "react";
+import { signup } from "../services/api";
+import { useNavigate } from "react-router-dom";
+import "../css/Form.css";
+
+export default function Signup() {
+  const [form, setForm] = useState({
+    username: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    profileImage: null,
+  });
+
+  const navigate = useNavigate();
+  const [error, setError] = useState("");
+
+  const handleChange = (e) => {
+    const { name, value, files } = e.target;
+    setForm((prev) => ({
+      ...prev,
+      [name]: files ? files[0] : value,
+    }));
+  };
+
+  const uploadToCloudinary = async (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "unsigned_preset");
+    const res = await fetch("https://api.cloudinary.com/v1_1/dwjhklkuy/image/upload", {
+      method: "POST",
+      body: formData,
+    });
+    const data = await res.json();
+    return data.secure_url;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+
+    if (form.password !== form.confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    let imageUrl = "";
+    if (form.profileImage) {
+      try {
+        imageUrl = await uploadToCloudinary(form.profileImage);
+      } catch {
+        setError("Image upload failed");
+        return;
+      }
+    }
+
+    try {
+      await signup({
+        username: form.username,
+        email: form.email,
+        password: form.password,
+        confirm_password: form.confirmPassword,
+        profile_image_url: imageUrl,
+      });
+      navigate("/login");
+    } catch (err) {
+      setError("Signup failed. Please try again.");
+    }
+  };
+
+  return (
+    <div className="auth-page">
+      <div className="auth-container">
+        <h2>Sign Up</h2>
+        {error && <p className="error">{error}</p>}
+
+        <form onSubmit={handleSubmit}>
+          <input type="text" name="username" placeholder="Username" value={form.username} onChange={handleChange} required />
+          <input type="email" name="email" placeholder="Email" value={form.email} onChange={handleChange} required />
+          <input type="password" name="password" placeholder="Password" value={form.password} onChange={handleChange} required />
+          <input type="password" name="confirmPassword" placeholder="Confirm Password" value={form.confirmPassword} onChange={handleChange} required />
+
+          <label>Profile Image (optional)</label>
+          <input type="file" name="profileImage" accept="image/*" onChange={handleChange} />
+
+          <button type="submit">Sign Up</button>
+        </form>
+      </div>
+    </div>
+  );
+}

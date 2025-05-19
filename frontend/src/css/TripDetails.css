@@ -1,0 +1,103 @@
+.trip-details-header {
+  padding: 20px 20px;
+  max-width: 600px;
+  margin: 0 auto;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 0 16px rgba(0.2, 0.2, 0.2, 0.2);
+  font-family: "Segoe UI", sans-serif;
+  margin-bottom: 1rem;
+  margin-top: 1rem;
+}
+
+.trip-title {
+  font-size: 1.8rem;
+  margin-bottom: 30px;
+  text-align: center;
+  font-weight: 600;
+}
+
+.trip-info-block {
+  margin-bottom: 24px;
+  line-height: 1.6;
+  font-size: 1rem;
+}
+
+.add-day-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 16px;
+  cursor: pointer;
+  color: #2e7d32;
+  font-weight: 600;
+  font-size: 0.9rem;
+  background-color: #e8f5e9;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: background-color 0.3s;
+}
+
+.add-day-button:hover {
+  background-color: #c8e6c9;
+}
+
+.trip-grid-full {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 25px;
+  padding: 40px 60px;
+  background-color: #fafafa;
+}
+
+@media (max-width: 992px) {
+  .trip-grid-full {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .trip-grid-full {
+    grid-template-columns: 1fr;
+    padding: 20px;
+  }
+}
+
+.trip-loading,
+.trip-error {
+  text-align: center;
+  margin-top: 40px;
+  font-size: 1rem;
+}
+
+.trip-error {
+  color: red;
+}
+
+.trip-details-icons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-top: 1rem;
+}
+
+.trip-detail-item {
+  background-color: #f3f3f3;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.04);
+
+}
+
+.trip-header-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
