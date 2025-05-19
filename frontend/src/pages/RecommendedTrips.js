@@ -6,10 +6,11 @@ import {
 } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import RecommendedTripCard from "../components/RecommendedTripCard";
-import { FaSearch, FaHeart, FaThList } from "react-icons/fa";
+import { FaSearch, FaHeart } from "react-icons/fa";
 import "../css/RecommendedTrips.css";
 import "../css/TripCard.css";
-import "../css/SortDropdown.css"; // קובץ עיצוב ייעודי
+import "../css/SortDropdown.css";
+import "../css/Pagination.css";
 
 export default function RecommendedTrips() {
   const [trips, setTrips] = useState([]);
@@ -21,6 +22,8 @@ export default function RecommendedTrips() {
   const [total, setTotal] = useState(0);
   const [showSortMenu, setShowSortMenu] = useState(false);
   const { user } = useAuth();
+
+  const totalPages = Math.ceil(total / 8);
 
   useEffect(() => {
     const delaySearch = setTimeout(async () => {
@@ -92,9 +95,9 @@ export default function RecommendedTrips() {
         </div>
 
         <div className="recommended-buttons">
-          <div className="sort-dropdown">
+          <div className="sort-dropdown" onBlur={() => setShowSortMenu(false)} tabIndex={0}>
             <button className="trip-btn outline" onClick={() => setShowSortMenu((prev) => !prev)}>
-              Sort By <span style={{ fontSize: "1.5rem", marginLeft: "4px" }}>▾</span>
+              Sort By <span style={{ fontSize: "1.6rem", marginLeft: "6px" }}>▾</span>
             </button>
             {showSortMenu && (
               <div className="sort-menu">
@@ -117,7 +120,7 @@ export default function RecommendedTrips() {
 
           {user && (
             <button onClick={handleFavorites} className="trip-btn outline favorites-btn">
-              Favorites <FaHeart /> 
+              Favorites <FaHeart />
             </button>
           )}
         </div>
@@ -140,23 +143,31 @@ export default function RecommendedTrips() {
       </div>
 
       {!loading && trips.length > 0 && mode !== "favorites" && (
-        <div className="pagination-controls">
+        <div className="pagination-modern">
           <button
-            className="trip-btn outline"
+            className="page-btn"
             disabled={page === 1}
-            onClick={() => setPage((prev) => prev - 1)}
+            onClick={() => setPage(page - 1)}
           >
-            Previous
+            ←
           </button>
 
-          <span style={{ margin: "0 1rem" }}>Page {page}</span>
+          {Array.from({ length: totalPages }).map((_, i) => (
+            <button
+              key={i}
+              className={`page-btn ${page === i + 1 ? "active" : ""}`}
+              onClick={() => setPage(i + 1)}
+            >
+              {i + 1}
+            </button>
+          ))}
 
           <button
-            className="trip-btn outline"
-            disabled={page * 8 >= total}
-            onClick={() => setPage((prev) => prev + 1)}
+            className="page-btn"
+            disabled={page === totalPages}
+            onClick={() => setPage(page + 1)}
           >
-            Next
+            →
           </button>
         </div>
       )}
