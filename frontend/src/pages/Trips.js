@@ -3,14 +3,16 @@ import {
   getMyTrips,
   searchTrips,
   getFavoriteTrips,
+  getTripsByUser,
 } from "../services/api";
 import { useAuth } from "../context/AuthContext";
+import { useLocation } from "react-router-dom";
 import TripCard from "../components/TripCard";
 import { FaSearch, FaHeart, FaThList, FaPlus } from "react-icons/fa";
 import "../css/RecommendedTrips.css";
 import "../css/TripCard.css";
 import "../css/SortDropdown.css";
-import "../css/Pagination.css"; // ✅ אם יצרת קובץ נפרד לדפדוף
+import "../css/Pagination.css";
 
 export default function Trips() {
   const [trips, setTrips] = useState([]);
@@ -22,29 +24,46 @@ export default function Trips() {
   const [total, setTotal] = useState(0);
   const [showSortMenu, setShowSortMenu] = useState(false);
   const { user } = useAuth();
+  const [creatingInlineTrip, setCreatingInlineTrip] = useState(false);
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const userId = searchParams.get("user_id");
+
+  const isViewingOtherUser = user?.is_admin && userId;
 
   useEffect(() => {
+    if (creatingInlineTrip) return;
+
     const delaySearch = setTimeout(async () => {
       setLoading(true);
       try {
+        if (isViewingOtherUser) {
+          const res = await getTripsByUser(userId);
+          setTrips(res);
+          setTotal(res.length);
+          return;
+        }
+
         if (!searchQuery.trim()) {
           const res = await getMyTrips({ page, sortBy });
           setTrips(res.data.trips);
           setTotal(res.data.total);
           setMode("all");
         } else {
-          const res = await searchTrips(searchQuery);
-          setTrips(res.data);
+          const res = await searchTrips({ query: searchQuery, page, sortBy });
+          setTrips(res.data.trips);
+          setTotal(res.data.total || 0);
         }
       } catch (error) {
         console.error("Search error:", error);
+        setTrips([]);
       } finally {
         setLoading(false);
       }
     }, 500);
 
     return () => clearTimeout(delaySearch);
-  }, [searchQuery, page, sortBy]);
+  }, [searchQuery, page, sortBy, creatingInlineTrip, userId]);
 
   const handleFavorites = async () => {
     try {
@@ -73,7 +92,10 @@ export default function Trips() {
       end_date: null,
       image_url: null,
       average_rating: null,
+      created_at: null,
     };
+
+    setCreatingInlineTrip(true);
     setTrips((prev) => [newTrip, ...prev]);
   };
 
@@ -89,7 +111,41 @@ export default function Trips() {
     { value: "start_soonest", label: "🚀 Start Soonest" },
   ];
 
-  const totalPages = Math.ceil(total / 8);
+  const totalPages = Math.ceil(total / 10);
+
+  const handleAllTrips = async () => {
+    try {
+      setLoading(true);
+      setMode("all");
+      setSearchQuery("");
+      setPage(1);
+      const res = await getMyTrips({ page: 1, sortBy });
+      setTrips(res.data.trips);
+      setTotal(res.data.total);
+    } catch (error) {
+      console.error("All trips fetch failed:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchAllMyTrips = async () => {
+    try {
+      setLoading(true);
+      const res = await getMyTrips({ page, sortBy });
+
+      if (res.data.trips.length === 0 && page > 1) {
+        setPage((prev) => prev - 1);
+      } else {
+        setTrips(res.data.trips);
+        setTotal(res.data.total);
+      }
+    } catch (err) {
+      console.error("Failed to fetch recommended trips:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="recommended-page">
@@ -99,7 +155,7 @@ export default function Trips() {
             <FaSearch className="search-icon" />
             <input
               type="text"
-              placeholder="Search my trips..."
+              placeholder="Search trips..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="search-input"
@@ -108,7 +164,7 @@ export default function Trips() {
         </div>
 
         <div className="recommended-buttons">
-          <div className="sort-dropdown" onBlur={() => setShowSortMenu(false)} tabIndex={0}>
+          <div className="sort-dropdown">
             <button className="trip-btn outline" onClick={() => setShowSortMenu((prev) => !prev)}>
               Sort By <span style={{ fontSize: "1.7rem", marginLeft: "6px" }}>▾</span>
             </button>
@@ -131,17 +187,27 @@ export default function Trips() {
             )}
           </div>
 
-          {user && (
-            <button
-              onClick={handleFavorites}
-              className="trip-btn outline favorites-btn"
-            >
-              Favorites <FaHeart />
-            </button>
+          {!isViewingOtherUser && user && (
+            <>
+              <button
+                onClick={handleFavorites}
+                className={`trip-btn outline favorites-btn ${mode === "favorites" ? "selected" : ""}`}
+              >
+                Favorites <FaHeart />
+              </button>
+
+              <button
+                onClick={handleAllTrips}
+                className={`trip-btn outline ${mode === "all" ? "selected" : ""}`}
+              >
+                All Trips <FaThList style={{ marginRight: "6px" }} />
+              </button>
+
+              <button onClick={handleInlineCreate} className="trip-btn outline">
+                Create New <FaPlus />
+              </button>
+            </>
           )}
-          <button onClick={handleInlineCreate} className="trip-btn outline">
-            Create New <FaPlus />
-          </button>
         </div>
       </div>
 
@@ -157,44 +223,53 @@ export default function Trips() {
               trip={trip}
               onUnfavorited={mode === "favorites" ? handleUnfavorited : null}
               onUpdated={(oldId, updatedTrip) => {
-                setTrips((prevTrips) =>
-                  [updatedTrip, ...prevTrips.filter((t) => t.id !== oldId)]
-                );
+                setTrips((prevTrips) => [updatedTrip, ...prevTrips.filter((t) => t.id !== oldId)]);
+                setCreatingInlineTrip(false);
               }}
               onDeleted={(id) => {
                 setTrips((prevTrips) => prevTrips.filter((t) => t.id !== id));
+                fetchAllMyTrips();
               }}
             />
           ))
         )}
       </div>
 
-      {!loading && trips.length > 0 && mode !== "favorites" && (
+      {!loading && trips.length > 0 && mode !== "favorites" && !isViewingOtherUser && (
         <div className="pagination-modern">
-          <button
-            className="page-btn"
-            disabled={page === 1}
-            onClick={() => setPage(page - 1)}
-          >
-            ←
+          <button className="page-btn" disabled={page === 1} onClick={() => setPage(page - 1)}>
+            Previous
           </button>
 
-          {Array.from({ length: totalPages }).map((_, i) => (
-            <button
-              key={i}
-              className={`page-btn ${page === i + 1 ? "active" : ""}`}
-              onClick={() => setPage(i + 1)}
-            >
-              {i + 1}
-            </button>
-          ))}
+          {Array.from({ length: totalPages }).map((_, i) => {
+            const current = i + 1;
+            const isFirst = current === 1;
+            const isLast = current === totalPages;
+            const isNearCurrent = Math.abs(current - page) <= 1;
 
-          <button
-            className="page-btn"
-            disabled={page === totalPages}
-            onClick={() => setPage(page + 1)}
-          >
-            →
+            if (isFirst || isLast || isNearCurrent) {
+              return (
+                <button
+                  key={current}
+                  className={`page-btn ${page === current ? "active" : ""}`}
+                  onClick={() => setPage(current)}
+                >
+                  {current}
+                </button>
+              );
+            } else if (
+              (current === 2 && page > 4) ||
+              (current === totalPages - 1 && page < totalPages - 3) ||
+              (current === page - 2 || current === page + 2)
+            ) {
+              return <span key={`dots-${current}`} className="page-dots">...</span>;
+            } else {
+              return null;
+            }
+          })}
+
+          <button className="page-btn" disabled={page === totalPages} onClick={() => setPage(page + 1)}>
+            Next
           </button>
         </div>
       )}

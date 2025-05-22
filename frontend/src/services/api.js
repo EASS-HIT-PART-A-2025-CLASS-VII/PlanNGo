@@ -37,12 +37,13 @@ export const deleteUser = (userId) => api.delete(`/admin/users/${userId}`);
 export const createRecommendedTrip = (data) =>
   api.post("/admin/recommended", data);
 export const updateRecommendedTrip = (tripId, data) =>
-  api.put(`/admin/recommended/${tripId}`, data);
+  api.put(`/admin/recommended/${tripId}`, data).then((res) => res.data);
 export const deleteRecommendedTrip = (tripId) =>
   api.delete(`/admin/recommended/${tripId}`);
 export const convertToRecommended = (tripId) =>
   api.post(`/admin/recommended/convert/${tripId}`);
-export const updateOwnAdminProfile = (data) => api.put("/admin/profile", data);
+export const getTripsByUser = (userId) =>
+  api.get(`/admin/users/${userId}/trips`).then((res) => res.data);
 
 // ===== RECOMMENDED =====
 export const getRecommendedTrips = ({ page = 1, sortBy = "recent" }) =>

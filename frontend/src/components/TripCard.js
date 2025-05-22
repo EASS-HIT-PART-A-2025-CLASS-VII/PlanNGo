@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import {
   FaShareAlt,
   FaDollarSign,
@@ -11,6 +12,7 @@ import {
   FaCalendarAlt,
   FaCheck,
   FaTimes,
+  FaStar,
 } from "react-icons/fa";
 import {
   getTripShareLink,
@@ -21,10 +23,13 @@ import {
   deleteTrip,
   updateTrip,
   createTrip,
+  convertToRecommended,
 } from "../services/api";
 import "../css/TripCard.css";
 
 export default function TripCard({ trip, onUnfavorited, onDeleted, onUpdated }) {
+  const { user } = useAuth();
+  const isAdmin = user?.is_admin;
   const [budget, setBudget] = useState(null);
   const [isFavorite, setIsFavorite] = useState(false);
   const [travelerCount, setTravelerCount] = useState("");
@@ -123,7 +128,7 @@ export default function TripCard({ trip, onUnfavorited, onDeleted, onUpdated }) 
 
   const handleEditSave = async (e) => {
     e.stopPropagation();
-    
+
     if (!editedTrip.title?.trim() || !editedTrip.destination?.trim()) {
       alert("Title and Destination are required.");
       return;
@@ -134,7 +139,6 @@ export default function TripCard({ trip, onUnfavorited, onDeleted, onUpdated }) 
         const created = await createTrip(editedTrip);
         alert("Trip created successfully.");
 
-        // עדכון פנימי
         setTripImage(created.image_url);
         setEditedTrip(created);
         setIsEditing(false);
@@ -146,7 +150,6 @@ export default function TripCard({ trip, onUnfavorited, onDeleted, onUpdated }) 
         return;
       }
 
-      // עדכון רגיל
       const updated = await updateTrip(trip.id, editedTrip);
       alert("Trip updated successfully.");
       setTripImage(updated.image_url);
@@ -206,9 +209,28 @@ export default function TripCard({ trip, onUnfavorited, onDeleted, onUpdated }) 
     }
   };
 
+  const handleConvertToRecommended = async (e) => {
+    e.stopPropagation();
+    try {
+      await convertToRecommended(trip.id);
+      alert("Trip converted to recommended.");
+    } catch (err) {
+      alert("Failed to convert.");
+    }
+  };
+
   return (
     <>
       <div className="trip-card" onClick={handleClick} style={{ cursor: "pointer" }}>
+        {user?.is_admin && (
+          <button
+            className="trip-btn icon convert-btn"
+            onClick={handleConvertToRecommended}
+            title="Convert to Recommended"
+          >
+            <FaStar />
+          </button>
+        )}
         {isEditing ? (
           <div className="trip-image-edit-wrapper" onMouseEnter={() => setHovering(true)} onMouseLeave={() => setHovering(false)}>
             <img src={tripImage || defaultImage} alt="Trip" onClick={handleImageClick} className="trip-image-edit" />
@@ -219,27 +241,46 @@ export default function TripCard({ trip, onUnfavorited, onDeleted, onUpdated }) 
           <img src={trip.image_url && trip.image_url.trim() !== "" ? trip.image_url : defaultImage} alt={trip.title} className="trip-image" />
         )}
 
-        <div className="trip-actions-top" style={{ display: "flex", gap: "0.6rem", justifyContent: "flex-end" }}>
-          <button className="trip-btn icon" onClick={handleFavoriteToggle} title="Favorite">
-            {isFavorite ? <FaHeart size={22} /> : <FaRegHeart size={22} />}
-          </button>
-          <button className="trip-btn icon" onClick={handleShare} title="Share">
-            <FaShareAlt />
-          </button>
-          <button className="trip-btn icon" onClick={handleCalendarSync} title="Sync to Calendar">
-            <FaCalendarAlt />
-          </button>
+        <div
+          className="trip-actions-top"
+          style={{ display: "flex", gap: "0.6rem", justifyContent: "flex-end" }}
+        >
+          {isEditing ? (
+            <>
+              <button className="trip-btn icon" onClick={handleEditSave} title="Save">
+                <FaCheck />
+              </button>
+              <button className="trip-btn icon" onClick={handleEditCancel} title="Cancel">
+                <FaTimes />
+              </button>
+            </>
+          ) : (
+            !user?.is_admin && (
+              <>
+                <button className="trip-btn icon" onClick={handleFavoriteToggle} title="Favorite">
+                  {isFavorite ? <FaHeart size={22} /> : <FaRegHeart size={22} />}
+                </button>
+                <button className="trip-btn icon" onClick={handleShare} title="Share">
+                  <FaShareAlt />
+                </button>
+                <button className="trip-btn icon" onClick={handleCalendarSync} title="Sync to Calendar">
+                  <FaCalendarAlt />
+                </button>
+              </>
+            )
+          )}
         </div>
+
 
         {isEditing ? (
           <div className="trip-edit-controls">
-            {[["📌", "title"], ["📍", "destination"]].map(([icon, key]) => (
+            {["title", "destination"].map((key) => (
               <div key={key} className="input-with-icon">
-                <span className="icon">{icon}</span>
+                <span className="icon">{key === "title" ? "📌" : "📍"}</span>
                 <input
                   value={editedTrip[key] || ""}
                   onChange={(e) => handleEditChange(key, e.target.value)}
-                  required={key === "title" || key === "destination"}
+                  required
                 />
               </div>
             ))}
@@ -251,9 +292,9 @@ export default function TripCard({ trip, onUnfavorited, onDeleted, onUpdated }) 
               <span className="icon">⏳</span>
               <input type="number" value={editedTrip.duration_days || ""} onChange={(e) => handleEditChange("duration_days", e.target.value)} />
             </div>
-            {[["🗓️", "start_date"], ["🗓️", "end_date"]].map(([icon, key]) => (
+            {["start_date", "end_date"].map((key) => (
               <div key={key} className="input-with-icon">
-                <span className="icon">{icon}</span>
+                <span className="icon">🗓️</span>
                 <input type="date" value={editedTrip[key] || ""} onChange={(e) => handleEditChange(key, e.target.value)} />
               </div>
             ))}
@@ -270,30 +311,31 @@ export default function TripCard({ trip, onUnfavorited, onDeleted, onUpdated }) 
           </>
         )}
 
-        <div className="trip-actions">
-          <button className="trip-btn outline" onClick={(e) => { e.stopPropagation(); setShowTravelersModal(true); }}>
-            <FaDollarSign /> {budget != null ? `${budget} $` : "Budget"}
-          </button>
-          <button className="trip-btn outline" onClick={handleSummary}>
-            <FaEnvelope /> Summary
-          </button>
-        </div>
-
-        <div className="trip-actions-side" style={{ position: "absolute", top: 10, right: 10, display: "flex", flexDirection: "column", gap: "0.4rem" }}>
-          {isEditing ? (
-            <>
-              <button className="trip-btn icon" onClick={handleEditSave}><FaCheck /></button>
-              <button className="trip-btn icon" onClick={handleEditCancel}><FaTimes /></button>
-            </>
-          ) : (
-            <button className="trip-btn icon" onClick={handleEditToggle} title="Edit Trip">
-              <FaEdit />
+        {!isEditing && (
+          <div className="trip-actions">
+            <button className="trip-btn outline" onClick={(e) => { e.stopPropagation(); setShowTravelersModal(true); }}>
+              <FaDollarSign /> {budget != null ? `${budget} $` : "Budget"}
             </button>
-          )}
-          <button className="trip-btn icon" onClick={handleDelete} title="Delete Trip">
-            <FaTrash />
-          </button>
-        </div>
+            <button className="trip-btn outline" onClick={handleSummary}>
+              <FaEnvelope /> Summary
+            </button>
+          </div>
+        )}
+
+        {!user?.is_admin && (
+          <div className="trip-actions-side">
+            {!isEditing && (
+              <>
+                <button className="trip-btn icon" onClick={handleEditToggle} title="Edit Trip">
+                  <FaEdit />
+                </button>
+                <button className="trip-btn icon" onClick={handleDelete} title="Delete Trip">
+                  <FaTrash />
+                </button>
+              </>
+            )}
+          </div>
+        )}
       </div>
 
       {showTravelersModal && (

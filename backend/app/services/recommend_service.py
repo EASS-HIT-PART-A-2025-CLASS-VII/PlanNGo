@@ -1,7 +1,7 @@
 # פונקציות שירות הקשורות לטיולים מומלצים: קבלה וסימון כמומלץ 
 
 from sqlalchemy.orm import Session
-from sqlalchemy import func, desc, or_
+from sqlalchemy import func, desc, or_, nulls_last
 from fastapi import HTTPException, status
 from app.models.trip_model import Trip
 from app.models.user_model import User
@@ -19,7 +19,12 @@ def get_recommended_trips(db: Session, sort_by: str, page: int, limit: int):
     if sort_by == "recent":
         query = query.order_by(Trip.created_at.desc())
     elif sort_by == "top_rated":
-        query = query.outerjoin(Rating).group_by(Trip.id).order_by(func.avg(Rating.rating).desc())
+        avg_rating = func.avg(Rating.rating)
+        query = (
+            query.outerjoin(Rating)
+            .group_by(Trip.id)
+            .order_by(nulls_last(avg_rating.desc()))
+        )
     elif sort_by == "favorites":
         query = query.outerjoin(FavoriteTrip).group_by(Trip.id).order_by(func.count(FavoriteTrip.id).desc())
     elif sort_by == "random":
@@ -41,13 +46,12 @@ def handle_search_recommended_trips(
     title: str,
     description: str,
     destination: str,
-    creator_name: str,
     db: Session,
     page: int = 1,
-    limit: int = 8,
+    limit: int = 10,
     sort_by: str = "recent"
 ):
-    query = db.query(Trip).join(User).filter(Trip.is_recommended == True)
+    query = db.query(Trip).filter(Trip.is_recommended == True)
 
     filters = []
     if title:
@@ -56,30 +60,31 @@ def handle_search_recommended_trips(
         filters.append(Trip.description.ilike(f"%{description.strip()}%"))
     if destination:
         filters.append(Trip.destination.ilike(f"%{destination.strip()}%"))
-    if creator_name:
-        filters.append(User.username.ilike(f"%{creator_name.strip()}%"))
 
     if filters:
+        print("Filters applied:", filters)
         query = query.filter(or_(*filters))
+    else:
+        print("No filters applied")
+        return {"total": 0, "page": page, "limit": limit, "trips": []}
 
-    if sort_by == "recent":
-        query = query.order_by(Trip.created_at.desc())
-    elif sort_by == "random":
-        query = query.order_by(func.random())
-    elif sort_by == "top_rated":
-        # מיון לפי ממוצע דירוג (הגיוני רק אם enrichment קיים)
-        # נמשוך את כל הרשימה ואז נבצע מיון ידני
+    if sort_by == "top_rated":
         all_trips = query.all()
         rated_trips = enrich_with_average_rating(all_trips, db)
-        rated_trips.sort(key=lambda t: t.average_rating or 0, reverse=True)
+        rated_trips.sort(key=lambda t: t.average_rating if t.average_rating is not None else -1, reverse=True)
         total = len(rated_trips)
         paginated = rated_trips[(page - 1) * limit : page * limit]
         return {
             "total": total,
             "page": page,
             "limit": limit,
-            "trips": paginated,
+            "trips": paginated
         }
+
+    if sort_by == "recent":
+        query = query.order_by(Trip.created_at.desc())
+    elif sort_by == "random":
+        query = query.order_by(func.random())
 
     total = query.count()
     trips = query.offset((page - 1) * limit).limit(limit).all()

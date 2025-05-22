@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   FaStar,
@@ -8,7 +8,11 @@ import {
   FaEnvelope,
   FaSuitcase,
   FaHeart,
-  FaRegHeart
+  FaRegHeart,
+  FaEdit,
+  FaTrash,
+  FaCheck,
+  FaTimes
 } from "react-icons/fa";
 import { useAuth } from "../context/AuthContext";
 import {
@@ -17,17 +21,20 @@ import {
   sendRecommendedTripSummary,
   rateTrip,
   cloneRecommendedTrip,
-  getTripShareLink,
   toggleFavoriteRecommended,
-  isRecommendedFavorite
+  isRecommendedFavorite,
+  updateRecommendedTrip,
+  deleteRecommendedTrip,
+  createRecommendedTrip
 } from "../services/api";
 import RecommendedComments from "./RecommendedComments";
 import "../css/TripCard.css";
 
-export default function RecommendedTripCard({ trip, onUnfavorited }) {
+export default function RecommendedTripCard({ trip, onUnfavorited, onUpdated, onDeleted }) {
   const { user } = useAuth();
   const isAdmin = user?.is_admin;
   const isLoggedIn = !!user && !isAdmin;
+  const navigate = useNavigate();
 
   const [budget, setBudget] = useState(null);
   const [loadingBudget, setLoadingBudget] = useState(false);
@@ -40,10 +47,13 @@ export default function RecommendedTripCard({ trip, onUnfavorited }) {
   const [ratingInput, setRatingInput] = useState("");
   const [averageRating, setAverageRating] = useState(trip.average_rating || null);
   const [isFavorite, setIsFavorite] = useState(false);
-  const defaultImage =
-    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80";
+  const [isEditing, setIsEditing] = useState(typeof trip.id === "string" && trip.id.startsWith("temp"));
+  const [editedTrip, setEditedTrip] = useState({ ...trip });
+  const [hovering, setHovering] = useState(false);
+  const fileInputRef = useRef();
+  const [tripImage, setTripImage] = useState(trip.image_url);
 
-  const navigate = useNavigate();
+  const defaultImage = "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80";
 
   useEffect(() => {
     if (isLoggedIn && trip.is_recommended) {
@@ -52,6 +62,10 @@ export default function RecommendedTripCard({ trip, onUnfavorited }) {
         .catch(() => {});
     }
   }, [trip.id, isLoggedIn]);
+
+  const handleClick = () => {
+    if (!isEditing) navigate(`/trips/${trip.id}`);
+  };
 
   const handleFavoriteToggle = async (e) => {
     e.stopPropagation();
@@ -67,27 +81,12 @@ export default function RecommendedTripCard({ trip, onUnfavorited }) {
     }
   };
 
-  const handleClick = () => {
-    navigate(`/trips/${trip.id}`);
-  };
-
   const handleShare = async (e) => {
     e.stopPropagation();
     try {
-      let res;
-      if (trip.is_recommended) {
-        res = await getRecommendedShareLink(trip.id);
-      } else {
-        res = await getTripShareLink(trip.id);
-      }
-
+      const res = await getRecommendedShareLink(trip.id);
       const url = res.data.share_link;
-
-      await navigator.share({
-        title: trip.title,
-        text: trip.description,
-        url,
-      });
+      await navigator.share({ title: trip.title, text: trip.description, url });
     } catch (err) {
       console.error("Share failed", err);
     }
@@ -102,7 +101,6 @@ export default function RecommendedTripCard({ trip, onUnfavorited }) {
       setBudget(res.data.estimated_budget);
       setShowTravelersModal(false);
     } catch (err) {
-      console.error("Budget error", err);
       alert("Failed to calculate budget");
     } finally {
       setLoadingBudget(false);
@@ -116,17 +114,7 @@ export default function RecommendedTripCard({ trip, onUnfavorited }) {
       setEmailInput("");
       setShowEmailModal(false);
     } catch (err) {
-      console.error("Email summary error", err);
       alert("Failed to send email");
-    }
-  };
-
-  const handleSummaryClick = (e) => {
-    e.stopPropagation();
-    if (user?.email) {
-      handleSummaryEmail(user.email);
-    } else {
-      setShowEmailModal(true);
     }
   };
 
@@ -158,98 +146,236 @@ export default function RecommendedTripCard({ trip, onUnfavorited }) {
     }
   };
 
+  const handleEditToggle = (e) => {
+    e.stopPropagation();
+    setIsEditing(true);
+  };
+
+  const handleEditChange = (field, value) => {
+    setEditedTrip((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleEditSave = async (e) => {
+    e.stopPropagation();
+    if (!editedTrip.title?.trim() || !editedTrip.destination?.trim() || editedTrip.duration_days == null || editedTrip.duration_days === "") {
+      alert("Title, Destination and duration days are required.");
+      return;
+    }
+    try {
+          if (typeof trip.id === "string" && trip.id.startsWith("temp")) {
+            const created = await createRecommendedTrip(editedTrip);
+            alert("Trip created successfully.");
+    
+            // עדכון פנימי
+            setTripImage(created.image_url);
+            setEditedTrip(created);
+            setIsEditing(false);
+    
+            if (onUpdated) {
+              onUpdated(trip.id, created.data);
+            }
+    
+            return;
+          }
+    
+          // עדכון רגיל
+          const updated = await updateRecommendedTrip(trip.id, editedTrip);
+          alert("Trip updated successfully.");
+          setTripImage(updated.image_url);
+          setEditedTrip(updated);
+          setIsEditing(false);
+    
+          if (onUpdated) {
+            onUpdated(trip.id, updated);
+          }
+        } catch (err) {
+          alert("Failed to save trip.");
+        }
+      };
+    
+  const handleEditCancel = (e) => {
+    e.stopPropagation();
+    setEditedTrip({ ...trip });
+    setIsEditing(false);
+  };
+
+  const handleDelete = async (e) => {
+    e.stopPropagation();
+    if (!window.confirm("Are you sure you want to delete this trip?")) return;
+    try {
+      await deleteRecommendedTrip(trip.id);
+      alert("Trip deleted successfully.");
+      if (onDeleted) onDeleted(trip.id);
+    } catch (err) {
+      alert("Failed to delete trip.");
+    }
+  };
+
+  const uploadToCloudinary = async (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "unsigned_preset");
+    const res = await fetch("https://api.cloudinary.com/v1_1/dwjhklkuy/image/upload", {
+      method: "POST",
+      body: formData,
+    });
+    const data = await res.json();
+    return data.secure_url;
+  };
+
+  const handleImageClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleImageChange = async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const url = await uploadToCloudinary(file);
+      setTripImage(url);
+      setEditedTrip((prev) => ({ ...prev, image_url: url }));
+    }
+  };
   return (
     <>
       <div className="trip-card" onClick={handleClick} style={{ cursor: "pointer" }}>
-        <img
-          src={trip.image_url && trip.image_url.trim() !== "" ? trip.image_url : defaultImage}
-          alt={trip.title}
-          className="trip-image"
-        />
-
-        <div className="trip-rating-wrapper">
-          <div className="trip-rating">
-            <FaStar /> {averageRating != null ? averageRating.toFixed(1) : "-"}
+        {isEditing ? (
+          <div className="trip-image-edit-wrapper" onMouseEnter={() => setHovering(true)} onMouseLeave={() => setHovering(false)}>
+            <img src={tripImage || defaultImage} alt="Trip" onClick={handleImageClick} className="trip-image-edit" />
+            {hovering && <div className="image-overlay">Click to change</div>}
+            <input type="file" accept="image/*" style={{ display: "none" }} ref={fileInputRef} onChange={handleImageChange} />
           </div>
-          {isLoggedIn && (
-            <span
-              className="rate-now-link"
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowRateModal(true);
-              }}
-            >
-              Rate the trip
-            </span>
-          )}
-        </div>
+        ) : (
+          <img src={trip.image_url && trip.image_url.trim() !== "" ? trip.image_url : defaultImage} alt={trip.title} className="trip-image" />
+        )}
 
-        <div className="trip-actions-top" style={{ display: "flex", gap: "0.6rem", justifyContent: "flex-end" }}>
-          {isLoggedIn && trip.is_recommended && (
-            <button
-              className={`trip-btn icon favorite-btn ${isFavorite ? "filled" : ""}`}
-              onClick={handleFavoriteToggle}
-              title="Favorite"
-            >
+        {!isAdmin && (
+          <div className="trip-rating-wrapper">
+            <div className="trip-rating">
+              <FaStar /> {averageRating != null ? averageRating.toFixed(1) : "-"}
+            </div>
+            {isLoggedIn && (
+              <span className="rate-now-link" onClick={(e) => { e.stopPropagation(); setShowRateModal(true); }}>
+                Rate the trip
+              </span>
+            )}
+          </div>
+        )}
+        {isAdmin && (
+          <div className="trip-rating-wrapper">
+            <div className="trip-rating">
+              <FaStar /> {averageRating != null ? averageRating.toFixed(1) : "-"}
+            </div>
+          </div>
+        )}
+
+        <div className="trip-actions-top">
+          {!isAdmin && isLoggedIn && trip.is_recommended && (
+            <button className={`trip-btn icon favorite-btn ${isFavorite ? "filled" : ""}`} onClick={handleFavoriteToggle} title="Favorite">
               {isFavorite ? <FaHeart size={22} /> : <FaRegHeart size={22} />}
             </button>
           )}
-          <button className="trip-btn icon" onClick={handleShare} title="Share">
-            <FaShareAlt />
-          </button>
-          <button
-            className="trip-btn icon"
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowCommentsModal(true);
-            }}
-            title="Comments"
-          >
-            <FaRegCommentDots />
-          </button>
-          {isLoggedIn && (
-            <button className="trip-btn icon" onClick={handleClone} title="Add to My Trips">
-              <FaSuitcase />
-            </button>
+
+          {!isAdmin && (
+            <>
+              <button className="trip-btn icon" onClick={handleShare} title="Share"><FaShareAlt /></button>
+              <button
+                className="trip-btn icon"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowCommentsModal(true);
+                }}
+                title="Comments"
+              >
+                <FaRegCommentDots />
+              </button>
+              {isLoggedIn && <button className="trip-btn icon" onClick={handleClone} title="Add to My Trips"><FaSuitcase /></button>}
+            </>
+          )}
+
+          {isAdmin && (
+            isEditing ? (
+              <>
+                <button className="trip-btn icon" onClick={handleEditSave}><FaCheck /></button>
+                <button className="trip-btn icon" onClick={handleEditCancel}><FaTimes /></button>
+              </>
+            ) : (
+              <>
+                <button
+                  className="trip-btn icon"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowCommentsModal(true);
+                  }}
+                  title="View Comments"
+                >
+                  <FaRegCommentDots />
+                </button>
+                <button className="trip-btn icon" onClick={handleEditToggle}><FaEdit /></button>
+                <button className="trip-btn icon" onClick={handleDelete}><FaTrash /></button>
+              </>
+            )
           )}
         </div>
 
-        <h3 className="trip-card-title">{trip.title}</h3>
+        {isEditing ? (
+          <div className="trip-edit-controls">
+            {[["📌", "title"], ["📍", "destination"]].map(([icon, key]) => (
+              <div key={key} className="input-with-icon">
+                <span className="icon">{icon}</span>
+                <input
+                  value={editedTrip[key] || ""}
+                  onChange={(e) => handleEditChange(key, e.target.value)}
+                  required
+                />
+              </div>
+            ))}
+            <div className="input-with-icon">
+              <span className="icon">📝</span>
+              <textarea
+                value={editedTrip.description || ""}
+                onChange={(e) => handleEditChange("description", e.target.value)}
+              />
+            </div>
+            <div className="input-with-icon">
+              <span className="icon">⏳</span>
+              <input
+                type="number"
+                value={editedTrip.duration_days || ""}
+                onChange={(e) => handleEditChange("duration_days", e.target.value)}
+                required
+              />
+            </div>
+            {[["🗓️", "start_date"], ["🗓️", "end_date"]].map(([icon, key]) => (
+              <div key={key} className="input-with-icon">
+                <span className="icon">{icon}</span>
+                <input
+                  type="date"
+                  value={editedTrip[key] || ""}
+                  onChange={(e) => handleEditChange(key, e.target.value)}
+                />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <>
+            <h3 className="trip-card-title">{editedTrip.title}</h3>
+            <div className="trip-info">
+              <p><span className="icon">📍</span>{editedTrip.destination}</p>
+              <p><span className="icon">📝</span>{editedTrip.description}</p>
+              <p><span className="icon">⏳</span>{editedTrip.duration_days} days</p>
+              <p><span className="icon">🗓️</span>{editedTrip.start_date} - {editedTrip.end_date}</p>
+            </div>
+          </>
+        )}
 
-        <div className="trip-info">
-          <p><span className="icon">📍</span>{trip.destination}</p>
-          <p><span className="icon">📝</span>{trip.description}</p>
-          <p><span className="icon">⏳</span>{trip.duration_days} days</p>
-          <p><span className="icon">🗓️</span>{trip.start_date} - {trip.end_date}</p>
-        </div>
-
-        <div className="trip-actions">
-          <button
-            className="trip-btn outline"
-            title="Estimate budget"
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowTravelersModal(true);
-            }}
-          >
-            <FaDollarSign />
-            {budget != null ? `${budget} $` : "Budget"}
-          </button>
-
-          <button
-            className="trip-btn outline"
-            title="Send trip summary to email"
-            onClick={handleSummaryClick}
-          >
-            <FaEnvelope /> Summary
-          </button>
-        </div>
-
-        {isAdmin && (
+        {!isAdmin && (
           <div className="trip-actions">
-            <button className="trip-btn admin" onClick={(e) => e.stopPropagation()}>Edit</button>
-            <button className="trip-btn admin" onClick={(e) => e.stopPropagation()}>Delete</button>
-            <button className="trip-btn admin" onClick={(e) => e.stopPropagation()}>Create New</button>
+            <button className="trip-btn outline" onClick={(e) => { e.stopPropagation(); setShowTravelersModal(true); }}>
+              <FaDollarSign /> {budget != null ? `${budget} $` : "Budget"}
+            </button>
+            <button className="trip-btn outline" onClick={(e) => { e.stopPropagation(); setShowEmailModal(true); }}>
+              <FaEnvelope /> Summary
+            </button>
           </div>
         )}
       </div>
@@ -319,7 +445,7 @@ export default function RecommendedTripCard({ trip, onUnfavorited }) {
       {showCommentsModal && (
         <RecommendedComments
           tripId={trip.id}
-          user={user}
+          user={isAdmin ? null : user} 
           onClose={() => setShowCommentsModal(false)}
         />
       )}

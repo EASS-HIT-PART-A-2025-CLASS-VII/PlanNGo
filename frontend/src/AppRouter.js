@@ -4,7 +4,7 @@ import { useAuth } from "./context/AuthContext";
 // Layouts
 import GuestLayout from "./layouts/GuestLayout";
 import UserLayout from "./layouts/UserLayout";
-// import AdminLayout from "./layouts/AdminLayout";
+import AdminLayout from "./layouts/AdminLayout";
 
 // Pages - אורח
 import TripDetails from "./pages/TripDetails";
@@ -19,8 +19,7 @@ import Profile from "./pages/Profile";
 import Trips from "./pages/Trips";
 
 // Pages - אדמין
-// import UsersList from "./pages/UsersList";
-// import AdminRecommended from "./pages/AdminRecommended";
+import UsersManagement from "./pages/UsersManagement";
 
 // כללי
 import NotFound from "./pages/NotFound";
@@ -68,17 +67,18 @@ export default function AppRouter() {
         )}
 
         {/* אדמין */}
-        {/* 
         {user?.is_admin && (
           <Route path="/" element={<AdminLayout />}>
-            <Route index element={<UsersList />} />
-            <Route path="users" element={<UsersList />} />
-            <Route path="recommended" element={<AdminRecommended />} />
+            <Route index element={<RecommendedTrips />} />
+            <Route path="recommended" element={<RecommendedTrips />} />
+            <Route path="trips/:trip_id" element={<TripDetails />} />
             <Route path="profile" element={<Profile />} />
+            <Route path="users" element={<UsersManagement />} /> 
+            <Route path="trips" element={<Trips />} /> 
             <Route path="*" element={<NotFound />} />
           </Route>
         )}
-        */}
+        
       </Routes>
     </Router>
   );

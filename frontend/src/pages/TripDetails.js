@@ -45,19 +45,12 @@ export default function TripDetails() {
     <>
       <div className="trip-details-header">
         <h1 className="trip-title">{trip.title}</h1>
-
         <div className="trip-info-block">
           <p>📍 {trip.destination}</p>
           <p>📝 {trip.description}</p>
           <p>⏳ {trip.duration_days} days</p>
           <p>📅 {trip.start_date} - {trip.end_date}</p>
         </div>
-
-        {isAdmin && (
-          <div className="add-day-button" onClick={handleAddDay}>
-            <FaPlus /> Add Day
-          </div>
-        )}
       </div>
 
       <div className="trip-grid-full">

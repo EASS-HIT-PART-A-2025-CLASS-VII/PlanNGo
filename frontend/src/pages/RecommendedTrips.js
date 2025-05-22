@@ -6,7 +6,7 @@ import {
 } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import RecommendedTripCard from "../components/RecommendedTripCard";
-import { FaSearch, FaHeart } from "react-icons/fa";
+import { FaSearch, FaHeart, FaPlus, FaThList } from "react-icons/fa";
 import "../css/RecommendedTrips.css";
 import "../css/TripCard.css";
 import "../css/SortDropdown.css";
@@ -22,32 +22,37 @@ export default function RecommendedTrips() {
   const [total, setTotal] = useState(0);
   const [showSortMenu, setShowSortMenu] = useState(false);
   const { user } = useAuth();
+  const [creatingInlineTrip, setCreatingInlineTrip] = useState(false);
 
-  const totalPages = Math.ceil(total / 8);
+  const totalPages = Math.ceil(total / 10);
+  const isAdmin = user?.is_admin;
 
   useEffect(() => {
-    const delaySearch = setTimeout(async () => {
-      setLoading(true);
-      try {
-        if (!searchQuery.trim()) {
-          const res = await getRecommendedTrips({ page, sortBy });
-          setTrips(res.data.trips);
-          setTotal(res.data.total);
-          setMode("all");
-        } else {
-          const res = await searchRecommendedTrips({ query: searchQuery, page, sortBy });
-          setTrips(res.data.trips);
-          setTotal(res.data.total);
-        }
-      } catch (error) {
-        console.error("Search error:", error);
-      } finally {
-        setLoading(false);
-      }
-    }, 500);
+      if (creatingInlineTrip) return;
 
-    return () => clearTimeout(delaySearch);
-  }, [searchQuery, page, sortBy]);
+      const delaySearch = setTimeout(async () => {
+        setLoading(true);
+        try {
+          if (!searchQuery.trim()) {
+            const res = await getRecommendedTrips({ page, sortBy });
+            setTrips(res.data.trips);
+            setTotal(res.data.total);
+            setMode("all");
+          } else {
+            const res = await searchRecommendedTrips({ query: searchQuery, page, sortBy });
+            setTrips(res.data.trips);
+            setTotal(res.data.total || 0); 
+          }
+        } catch (error) {
+          console.error("Search error:", error);
+          setTrips([]);
+        } finally {
+          setLoading(false);
+        }
+      }, 500);
+  
+      return () => clearTimeout(delaySearch);
+    }, [searchQuery, page, sortBy, creatingInlineTrip]);
 
   const handleFavorites = async () => {
     try {
@@ -68,12 +73,76 @@ export default function RecommendedTrips() {
     }
   };
 
-  const sortOptions = [
+  const handleInlineCreate = () => {
+    const tempId = `temp-${Date.now()}`;
+    const newTrip = {
+      id: tempId,
+      user_id: null,
+      title: "",
+      destination: "",
+      description: null,
+      is_recommended: true,
+      duration_days: null,
+      start_date: null,
+      end_date: null,
+      image_url: null,
+      average_rating: null,
+      created_at: null,
+    };
+
+    setCreatingInlineTrip(true);
+    setTrips((prev) => [newTrip, ...prev]);
+  };
+
+  const sortOptions1 = [
     { value: "recent", label: "🕓 Most Recent" },
     { value: "random", label: "🎲 Random" },
     { value: "top_rated", label: "⭐ Top Rated" },
     { value: "favorites", label: "❤️ Most Favorited" },
   ];
+
+  const sortOptions2 = [
+    { value: "recent", label: "🕓 Most Recent" },
+    { value: "random", label: "🎲 Random" },
+    { value: "top_rated", label: "⭐ Top Rated" },
+  ];
+
+  const sortOptions = isAdmin ? sortOptions2 : sortOptions1;
+
+  const handleAllTrips = async () => {
+      try {
+        setLoading(true);
+        setMode("all");
+        setSearchQuery("");
+        setPage(1);
+        const res = await getRecommendedTrips({ page: 1, sortBy });
+        setTrips(res.data.trips);
+        setTotal(res.data.total);
+      } catch (error) {
+        console.error("All trips fetch failed:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    const fetchAllRecommendedTrips = async () => {
+      try {
+        setLoading(true);
+        const res = await getRecommendedTrips({ page, sortBy });
+
+        // אם העמוד הנוכחי התרוקן ויש דפים קודמים — נחזור אחורה
+        if (res.data.trips.length === 0 && page > 1) {
+          setPage((prev) => prev - 1);
+        } else {
+          setTrips(res.data.trips);
+          setTotal(res.data.total);
+        }
+      } catch (err) {
+        console.error("Failed to fetch recommended trips:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
   return (
     <div className="recommended-page">
@@ -95,7 +164,7 @@ export default function RecommendedTrips() {
         </div>
 
         <div className="recommended-buttons">
-          <div className="sort-dropdown" onBlur={() => setShowSortMenu(false)} tabIndex={0}>
+          <div className="sort-dropdown">
             <button className="trip-btn outline" onClick={() => setShowSortMenu((prev) => !prev)}>
               Sort By <span style={{ fontSize: "1.6rem", marginLeft: "6px" }}>▾</span>
             </button>
@@ -118,9 +187,27 @@ export default function RecommendedTrips() {
             )}
           </div>
 
-          {user && (
-            <button onClick={handleFavorites} className="trip-btn outline favorites-btn">
-              Favorites <FaHeart />
+          {user && !isAdmin && (
+            <>
+              <button
+                onClick={handleFavorites}
+                className={`trip-btn outline favorites-btn ${mode === "favorites" ? "selected" : ""}`}
+              >
+                Favorites <FaHeart />
+              </button>
+
+              <button
+                onClick={handleAllTrips}
+                className={`trip-btn outline ${mode === "all" ? "selected" : ""}`}
+              >
+                All Trips <FaThList style={{ marginRight: "6px" }} />
+              </button>
+            </>
+          )}
+
+          {isAdmin && (
+            <button onClick={handleInlineCreate} className="trip-btn outline">
+              Create New <FaPlus />
             </button>
           )}
         </div>
@@ -137,6 +224,16 @@ export default function RecommendedTrips() {
               key={trip.id}
               trip={trip}
               onUnfavorited={mode === "favorites" ? handleUnfavorited : null}
+              onUpdated={(oldId, updatedTrip) => {
+                setTrips((prevTrips) =>
+                  [updatedTrip, ...prevTrips.filter((t) => t.id !== oldId)]
+                );
+                setCreatingInlineTrip(false);
+              }}
+              onDeleted={(id) => {
+                setTrips((prevTrips) => prevTrips.filter((t) => t.id !== id));
+                fetchAllRecommendedTrips();
+              }}
             />
           ))
         )}
@@ -149,7 +246,7 @@ export default function RecommendedTrips() {
             disabled={page === 1}
             onClick={() => setPage(page - 1)}
           >
-            ←
+            Previous
           </button>
 
           {Array.from({ length: totalPages }).map((_, i) => (
@@ -167,7 +264,7 @@ export default function RecommendedTrips() {
             disabled={page === totalPages}
             onClick={() => setPage(page + 1)}
           >
-            →
+            Next
           </button>
         </div>
       )}

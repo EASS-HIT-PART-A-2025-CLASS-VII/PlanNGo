@@ -5,7 +5,7 @@ import "../css/Profile.css";
 import "../css/Form.css";
 
 export default function Profile() {
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
   const fileInputRef = useRef();
 
   const [initialData, setInitialData] = useState({ username: "", imageUrl: "" });
@@ -42,13 +42,22 @@ export default function Profile() {
     try {
       const uploadedUrl = await uploadToCloudinary(file);
       await updateUserProfile({ update_profile_image_url: uploadedUrl });
+
+      // עדכון מקומי
       setImageUrl(uploadedUrl);
       setMessage("Profile image updated successfully!");
       setInitialData((prev) => ({ ...prev, imageUrl: uploadedUrl }));
+
+      // עדכון גלובלי בקונטקסט
+      setUser((prevUser) => ({
+        ...prevUser,
+        profile_image_url: uploadedUrl,
+      }));
     } catch {
       setMessage("Image upload failed");
     }
   };
+
 
   const handleUpdate = async () => {
     const payload = {};

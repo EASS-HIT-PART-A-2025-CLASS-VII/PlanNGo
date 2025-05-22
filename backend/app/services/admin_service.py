@@ -5,14 +5,16 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException, Depends, status
 from app.models.trip_model import Trip
 from app.models.user_model import User
+from app.models.activity_model import Activity
 from app.schemas.trip_schema import TripCreate
 from app.services.token_service import get_current_user
-from app.schemas.user_schema import UpdateProfileRequest
+from app.services.trip_service import get_trip_by_id
 import bcrypt
+from typing import List
 
 # קבלת כל המשתמשים
 def get_all_users(db: Session):
-    return db.query(User).all()
+    return db.query(User).filter(User.is_admin == False).all()
 
 # מחיקת משתמש
 def delete_user(db: Session, user_id: int):
@@ -28,12 +30,43 @@ def delete_user(db: Session, user_id: int):
 def recommend_trip(trip_id: int, db: Session, current_user: User):
     if not current_user.is_admin:
         raise HTTPException(status_code=403, detail="Only admins can recommend trips.")
-    
-    trip = get_trip_by_id(trip_id, db)
-    trip.is_recommended = True
+
+    # שליפת הטיול המקורי
+    original = get_trip_by_id(trip_id, db)
+
+    # יצירת טיול חדש כמומלץ
+    recommended = Trip(
+        title=original.title,
+        destination=original.destination,
+        description=original.description,
+        duration_days=original.duration_days,
+        start_date=original.start_date,
+        end_date=original.end_date,
+        image_url=original.image_url,
+        is_recommended=True,
+        user_id=None  # טיול של המערכת, לא של משתמש
+    )
+
+    db.add(recommended)
     db.commit()
-    db.refresh(trip)
-    return trip
+    db.refresh(recommended)
+
+    # שכפול פעילויות מהטיול המקורי
+    original_activities = db.query(Activity).filter(Activity.trip_id == original.id).all()
+    for act in original_activities:
+        cloned_activity = Activity(
+            trip_id=recommended.id,
+            time=act.time,
+            title=act.title,
+            day_number=act.day_number,
+            description=act.description,
+            location_name=act.location_name
+        )
+        db.add(cloned_activity)
+
+    db.commit()  # שמירת כל הפעילויות המשוכפלות
+
+    return recommended
 
 # יצירת טיול מומלץ
 def admin_create_recommended_trip(trip_data: TripCreate, db: Session):
@@ -93,25 +126,6 @@ def admin_required(current_user: User = Depends(get_current_user)):
         )
     return current_user
 
-# עדכון פרופיל של אדמין
-def update_admin_profile(current_user: User, request: UpdateProfileRequest, db: Session):
-    current_user = db.merge(current_user)
-
-    if request.update_username:
-        existing_user = db.query(User).filter(User.username == request.update_username).first()
-        if existing_user and existing_user.id != current_user.id:
-            raise HTTPException(status_code=400, detail="Username already taken")
-        current_user.username = request.update_username
-
-    if request.update_password:
-        hashed_password = bcrypt.hashpw(request.update_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-        current_user.password = hashed_password
-
-    if request.update_profile_image_url:
-        current_user.profile_image_url = str(request.update_profile_image_url)
-
-    db.commit()
-    db.refresh(current_user)
-    return current_user
-
-
+# קבלת טיולים של משתמש 
+def get_trips_by_user_id(user_id: int, db: Session) -> List[Trip]:
+    return db.query(Trip).filter(Trip.user_id == user_id).all()

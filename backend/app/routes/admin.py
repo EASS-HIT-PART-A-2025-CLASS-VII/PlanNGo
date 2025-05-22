@@ -11,7 +11,6 @@ from app.schemas.trip_schema import TripCreate, TripOut
 from app.services import admin_service
 from app.services.admin_service import admin_required
 from app.services.token_service import get_current_user
-from app.schemas.user_schema import UpdateProfileRequest
 
 router = APIRouter(
     prefix="/admin",
@@ -58,14 +57,7 @@ def delete_recommended_trip(
 def mark_trip_as_recommended(trip_id: int, db: Session = Depends(get_db), current_user: User = Depends(admin_required)):
     return admin_service.recommend_trip(trip_id, db, current_user)
 
-# עדכון פרופיל אדמין
-@router.put("/profile", response_model=UserOut)
-def update_own_admin_profile(
-    request: UpdateProfileRequest,
-    db: Session = Depends(get_db),
-    current_admin: User = Depends(get_current_user)
-):
-    if not current_admin.is_admin:
-        raise HTTPException(status_code=403, detail="Admin privileges required")
-
-    return admin_service.update_admin_profile(current_user=current_admin, request=request, db=db)
+# קבלת טיולים של משתמש
+@router.get("/users/{user_id}/trips", response_model=List[TripOut])
+def admin_get_user_trips(user_id: int, db: Session = Depends(get_db)):
+    return admin_service.get_trips_by_user_id(user_id, db)

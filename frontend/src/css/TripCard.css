@@ -271,3 +271,14 @@
   font-size: 0.95rem;
 }
 
+.convert-btn {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  color: #f3b700;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.3rem;
+  z-index: 2;
+}

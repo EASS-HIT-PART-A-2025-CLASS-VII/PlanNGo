@@ -31,14 +31,13 @@ def search_recommended_trips(
     title: str = "",
     description: str = "",
     destination: str = "",
-    creator_name: str = "",
     page: int = 1,
-    limit: int = 8,
+    limit: int = 10,
     sort_by: str = "recent",
     db: Session = Depends(get_db)
 ):
     return recommend_service.handle_search_recommended_trips(
-        title, description, destination, creator_name, db, page, limit, sort_by
+        title, description, destination, db, page, limit, sort_by
     )
 
 # דירוג טיול מומלץ

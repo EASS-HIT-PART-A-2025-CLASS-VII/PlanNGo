@@ -32,7 +32,7 @@ def search_trips(
     destination: str = "",
     creator_name: str = "",
     page: int = 1,
-    limit: int = 8,
+    limit: int = 10,
     sort_by: str = "recent",
     db: Session = Depends(get_db)
 ):

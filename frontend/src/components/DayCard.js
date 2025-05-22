@@ -6,14 +6,10 @@ import {
   createActivity,
 } from "../services/api";
 import { FaPlus, FaTrash, FaEdit, FaCheck, FaTimes } from "react-icons/fa";
+import { useAuth } from "../context/AuthContext";
 import "../css/DayCard.css";
 
-export default function DayCard({
-  index,
-  tripId,
-  activities: propActivities,
-  canEdit = false,
-}) {
+export default function DayCard({ index, tripId, activities: propActivities, canEdit = false }) {
   const [activities, setActivities] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState({});
@@ -25,6 +21,7 @@ export default function DayCard({
     location_name: "",
   });
   const useProp = !!propActivities;
+  const { user } = useAuth();
 
   const sortByTime = (arr) => {
     return [...arr].sort((a, b) => {
@@ -104,22 +101,12 @@ export default function DayCard({
 
   const handleAddActivity = () => {
     setIsAdding(true);
-    setNewActivity({
-      time: "",
-      title: "",
-      description: "",
-      location_name: "",
-    });
+    setNewActivity({ time: "", title: "", description: "", location_name: "" });
   };
 
   const cancelAdd = () => {
     setIsAdding(false);
-    setNewActivity({
-      time: "",
-      title: "",
-      description: "",
-      location_name: "",
-    });
+    setNewActivity({ time: "", title: "", description: "", location_name: "" });
   };
 
   const saveNewActivity = async () => {
@@ -140,11 +127,13 @@ export default function DayCard({
     }
   };
 
+  const canUserEdit = canEdit || (user?.is_admin && propActivities?.[0]?.is_recommended);
+
   return (
     <div className="day-card">
       <div className="day-card-header">
         <h3 className="day-title">Day {index + 1}</h3>
-        {canEdit && (
+        {canUserEdit && (
           <button className="day-add-btn" onClick={handleAddActivity}>
             <FaPlus />
           </button>
@@ -152,57 +141,35 @@ export default function DayCard({
       </div>
 
       <ul className="activity-list">
-        {isAdding && (
+        {isAdding && canUserEdit && (
           <li className="activity-row">
             <input
               type="time"
               className="activity-input"
               value={newActivity.time}
-              onChange={(e) =>
-                setNewActivity((prev) => ({ ...prev, time: e.target.value }))
-              }
+              onChange={(e) => setNewActivity((prev) => ({ ...prev, time: e.target.value }))}
             />
             <input
               className="activity-input"
               placeholder="* Title"
               value={newActivity.title}
-              onChange={(e) =>
-                setNewActivity((prev) => ({ ...prev, title: e.target.value }))
-              }
+              onChange={(e) => setNewActivity((prev) => ({ ...prev, title: e.target.value }))}
             />
             <input
               className="activity-input"
               placeholder="Description (optional)"
               value={newActivity.description}
-              onChange={(e) =>
-                setNewActivity((prev) => ({
-                  ...prev,
-                  description: e.target.value,
-                }))
-              }
+              onChange={(e) => setNewActivity((prev) => ({ ...prev, description: e.target.value }))}
             />
             <input
               className="activity-input"
               placeholder="* Location"
               value={newActivity.location_name}
-              onChange={(e) =>
-                setNewActivity((prev) => ({
-                  ...prev,
-                  location_name: e.target.value,
-                }))
-              }
+              onChange={(e) => setNewActivity((prev) => ({ ...prev, location_name: e.target.value }))}
             />
             <div className="activity-actions">
-              <FaCheck
-                className="activity-btn"
-                onClick={saveNewActivity}
-                title="Add"
-              />
-              <FaTimes
-                className="activity-btn"
-                onClick={cancelAdd}
-                title="Cancel"
-              />
+              <FaCheck className="activity-btn" onClick={saveNewActivity} title="Add" />
+              <FaTimes className="activity-btn" onClick={cancelAdd} title="Cancel" />
             </div>
           </li>
         )}
@@ -218,67 +185,41 @@ export default function DayCard({
                     type="time"
                     className="activity-input"
                     value={editForm.time}
-                    onChange={(e) =>
-                      handleEditChange("time", e.target.value)
-                    }
+                    onChange={(e) => handleEditChange("time", e.target.value)}
                   />
                   <input
                     className="activity-input"
                     value={editForm.title}
-                    onChange={(e) =>
-                      handleEditChange("title", e.target.value)
-                    }
+                    onChange={(e) => handleEditChange("title", e.target.value)}
                     placeholder="* Title"
                   />
                   <input
                     className="activity-input"
                     value={editForm.description}
-                    onChange={(e) =>
-                      handleEditChange("description", e.target.value)
-                    }
+                    onChange={(e) => handleEditChange("description", e.target.value)}
                     placeholder="Description"
                   />
                   <input
                     className="activity-input"
                     value={editForm.location_name}
-                    onChange={(e) =>
-                      handleEditChange("location_name", e.target.value)
-                    }
+                    onChange={(e) => handleEditChange("location_name", e.target.value)}
                     placeholder="* Location"
                   />
                   <div className="activity-actions">
-                    <FaCheck
-                      className="activity-btn"
-                      onClick={() => saveEdit(act.id)}
-                      title="Save"
-                    />
-                    <FaTimes
-                      className="activity-btn"
-                      onClick={cancelEdit}
-                      title="Cancel"
-                    />
+                    <FaCheck className="activity-btn" onClick={() => saveEdit(act.id)} title="Save" />
+                    <FaTimes className="activity-btn" onClick={cancelEdit} title="Cancel" />
                   </div>
                 </>
               ) : (
                 <>
-                  <div className="activity-time-box">
-                    {act.time?.slice(0, 5) || "--:--"}
-                  </div>
+                  <div className="activity-time-box">{act.time?.slice(0, 5) || "--:--"}</div>
                   <div className="activity-title">{act.title}</div>
                   <div className="activity-desc">{act.description}</div>
                   <div className="activity-location">{act.location_name}</div>
-                  {canEdit && (
+                  {canUserEdit && (
                     <div className="activity-actions">
-                      <FaEdit
-                        className="activity-btn"
-                        onClick={() => startEdit(act)}
-                        title="Edit"
-                      />
-                      <FaTrash
-                        className="activity-btn"
-                        onClick={() => handleDeleteActivity(act.id)}
-                        title="Delete"
-                      />
+                      <FaEdit className="activity-btn" onClick={() => startEdit(act)} title="Edit" />
+                      <FaTrash className="activity-btn" onClick={() => handleDeleteActivity(act.id)} title="Delete" />
                     </div>
                   )}
                 </>

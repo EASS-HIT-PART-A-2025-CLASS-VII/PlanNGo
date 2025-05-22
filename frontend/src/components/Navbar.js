@@ -1,14 +1,16 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "../context/AuthContext"; // הנחה שיש לך context עם user
 import "../css/Navbar.css";
 
 export default function Navbar({ role }) {
   const location = useLocation();
   const isActive = (path) => location.pathname === path;
   const [showMenu, setShowMenu] = useState(false);
+  const { user } = useAuth(); // נשתמש בזה כדי להביא את השם והתמונה
 
   const toggleMenu = () => setShowMenu(!showMenu);
-  
+
   return (
     <div className="navbar-wrapper">
       {/* לוגו */}
@@ -64,7 +66,7 @@ export default function Navbar({ role }) {
           {role === "admin" && (
             <>
               <li>
-                <Link to="/admin/users" className={`nav-link ${isActive("/admin/users") ? "active" : ""}`}>
+                <Link to="/users" className={`nav-link ${isActive("/users") ? "active" : ""}`}>
                   <img src="/icons/users.png" alt="Users" className="nav-icon" />
                   <span>Users Management</span>
                 </Link>
@@ -82,13 +84,17 @@ export default function Navbar({ role }) {
 
       {/* תפריט פרופיל למשתמש ואדמין */}
       {(role === "user" || role === "admin") && (
-        <div className="profile-menu-wrapper">
+        <div className="profile-menu-wrapper" style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
           <img
-            src="/icons/profile.png"
+            src={user?.profile_image_url || "/icons/profile.png"}
             alt="User"
             className="profile-icon"
             onClick={toggleMenu}
           />
+          <div className="profile-label">
+            {role === "admin" ? "Hello Admin" : `Hello ${user?.username || "User"}`}
+          </div>
+
           {showMenu && (
             <div className="profile-dropdown">
               <Link to="/profile" className="dropdown-link" onClick={() => setShowMenu(false)}>
@@ -111,7 +117,7 @@ export default function Navbar({ role }) {
 
       {/* כפתור התחברות לאורח */}
       {role === "guest" && (
-        <div className="login-button-container">
+        <div className="login-button-container" style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
           <Link to="/login" className="login-button">Login</Link>
         </div>
       )}
