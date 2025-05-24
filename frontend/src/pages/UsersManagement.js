@@ -39,35 +39,37 @@ export default function UsersManagement() {
     navigate(`/trips?user_id=${userId}`);
   };
 
-  if (loading) return <p>Loading users...</p>;
-
   return (
     <div className="users-list">
-      <table className="users-table">
-        <thead>
-          <tr>
-            <th>Email</th>
-            <th>Username</th>
-            <th></th> {/* עמודת אייקונים */}
-          </tr>
-        </thead>
-        <tbody>
-          {users.map((user) => (
-            <tr key={user.id}>
-              <td>{user.email}</td>
-              <td>{user.username}</td>
-              <td className="actions-cell">
-                <button onClick={() => goToUserTrips(user.id)} title="View trips">
-                  <FaSuitcase />
-                </button>
-                <button onClick={() => handleDelete(user.id)} title="Delete user" className="delete-btn">
-                  <FaTrash />
-                </button>
-              </td>
+      {loading ? (
+        <p> Loading users...</p>
+      ) : (
+        <table className="users-table">
+          <thead>
+            <tr>
+              <th>Email</th>
+              <th>Username</th>
+              <th></th> {/* עמודת אייקונים */}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {users.map((user) => (
+              <tr key={user.id}>
+                <td>{user.email}</td>
+                <td>{user.username}</td>
+                <td className="actions-cell">
+                  <button onClick={() => goToUserTrips(user.id)} title="View trips">
+                    <FaSuitcase />
+                  </button>
+                  <button onClick={() => handleDelete(user.id)} title="Delete user" className="delete-btn">
+                    <FaTrash />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 }

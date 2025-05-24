@@ -8,7 +8,7 @@ import {
 import { useAuth } from "../context/AuthContext";
 import { useLocation } from "react-router-dom";
 import TripCard from "../components/TripCard";
-import { FaSearch, FaHeart, FaThList, FaPlus } from "react-icons/fa";
+import { FaSearch, FaRegHeart , FaHeart, FaPlus, FaSlidersH } from "react-icons/fa";
 import "../css/RecommendedTrips.css";
 import "../css/TripCard.css";
 import "../css/SortDropdown.css";
@@ -65,16 +65,32 @@ export default function Trips() {
     return () => clearTimeout(delaySearch);
   }, [searchQuery, page, sortBy, creatingInlineTrip, userId]);
 
-  const handleFavorites = async () => {
-    try {
-      setLoading(true);
-      const res = await getFavoriteTrips();
-      setTrips(res.data);
-      setMode("favorites");
-    } catch (error) {
-      console.error("Favorites fetch failed:", error);
-    } finally {
-      setLoading(false);
+  const handleFavoritesToggle = async () => {
+    if (mode === "favorites") {
+      try {
+        setLoading(true);
+        setMode("all");
+        setSearchQuery("");
+        setPage(1);
+        const res = await getMyTrips({ page: 1, sortBy });
+        setTrips(res.data.trips);
+        setTotal(res.data.total);
+      } catch (error) {
+        console.error("All trips fetch failed:", error);
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      try {
+        setLoading(true);
+        const res = await getFavoriteTrips();
+        setTrips(res.data);
+        setMode("favorites");
+      } catch (error) {
+        console.error("Favorites fetch failed:", error);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -113,22 +129,6 @@ export default function Trips() {
 
   const totalPages = Math.ceil(total / 10);
 
-  const handleAllTrips = async () => {
-    try {
-      setLoading(true);
-      setMode("all");
-      setSearchQuery("");
-      setPage(1);
-      const res = await getMyTrips({ page: 1, sortBy });
-      setTrips(res.data.trips);
-      setTotal(res.data.total);
-    } catch (error) {
-      console.error("All trips fetch failed:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const fetchAllMyTrips = async () => {
     try {
       setLoading(true);
@@ -165,8 +165,8 @@ export default function Trips() {
 
         <div className="recommended-buttons">
           <div className="sort-dropdown">
-            <button className="trip-btn outline" onClick={() => setShowSortMenu((prev) => !prev)}>
-              Sort By <span style={{ fontSize: "1.7rem", marginLeft: "6px" }}>▾</span>
+            <button className="icon-button" onClick={() => setShowSortMenu((prev) => !prev)} title="Sort by">
+              <FaSlidersH />
             </button>
             {showSortMenu && (
               <div className="sort-menu">
@@ -190,21 +190,15 @@ export default function Trips() {
           {!isViewingOtherUser && user && (
             <>
               <button
-                onClick={handleFavorites}
-                className={`trip-btn outline favorites-btn ${mode === "favorites" ? "selected" : ""}`}
+                onClick={handleFavoritesToggle}
+                className="icon-button"
+                title={mode === "favorites" ?  "All trips" : "Favorites"}
               >
-                Favorites <FaHeart />
+                {mode === "favorites" ? <FaHeart /> : <FaRegHeart />}
               </button>
 
-              <button
-                onClick={handleAllTrips}
-                className={`trip-btn outline ${mode === "all" ? "selected" : ""}`}
-              >
-                All Trips <FaThList style={{ marginRight: "6px" }} />
-              </button>
-
-              <button onClick={handleInlineCreate} className="trip-btn outline">
-                Create New <FaPlus />
+              <button onClick={handleInlineCreate} className="icon-button" title="Create new trip">
+                <FaPlus />
               </button>
             </>
           )}

@@ -6,6 +6,7 @@
 
 .users-table {
   width: 100%;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
   border-collapse: collapse;
   background-color: #fff;
   border: 1px solid #ddd;
@@ -21,8 +22,9 @@
 }
 
 .actions-cell {
-  text-align: left;
-  white-space: nowrap;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
 }
 
 .actions-cell button {
