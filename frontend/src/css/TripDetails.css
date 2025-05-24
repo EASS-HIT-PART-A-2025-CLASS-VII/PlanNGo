@@ -12,9 +12,11 @@
 
 .trip-title {
   font-size: 1.8rem;
-  margin-bottom: 30px;
-  text-align: center;
+  margin: 0 auto;
   font-weight: 600;
+  text-align: center;
+  flex-grow: 1;
+  margin-top: 1rem;
 }
 
 .trip-info-block {
@@ -80,7 +82,7 @@
   justify-content: space-between;
   align-items: center;
   gap: 16px;
-  margin-top: 1rem;
+  margin-top: 2rem; 
 }
 
 .trip-detail-item {
@@ -100,4 +102,44 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
+}
+
+.trip-details-header-flex {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.2rem;
+  border-bottom: 1px solid #e0e0e0;
+  flex-wrap: wrap;
+}
+
+.trip-details-header-flex .trip-title {
+  margin: 0;
+  font-size: 1.8rem;
+  flex-grow: 1;
+}
+
+.trip-header-actions {
+  display: flex;
+  gap: 0.8rem;
+}
+
+.trip-btn.icon {
+  background-color: #fff;
+  padding: 10px;
+  border-radius: 50%;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.trip-btn.icon:hover {
+  background-color: #f2f2f2;
+  transform: scale(1.05);
 }

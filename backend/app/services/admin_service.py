@@ -12,6 +12,8 @@ from app.services.trip_service import get_trip_by_id
 import bcrypt
 from typing import List
 
+DEFAULT_TRIP_IMAGE = "http://localhost:8000/static/default-trip.png"
+
 # קבלת כל המשתמשים
 def get_all_users(db: Session):
     return db.query(User).filter(User.is_admin == False).all()
@@ -76,6 +78,9 @@ def admin_create_recommended_trip(trip_data: TripCreate, db: Session):
     if duration is None:
         raise HTTPException(status_code=400, detail="Recommended trips require 'duration_days'.")
 
+    if not data.get("image_url"):
+        data["image_url"] = DEFAULT_TRIP_IMAGE
+        
     # טיול מומלץ לא כולל תאריכים או יוזר
     data["start_date"] = None
     data["end_date"] = None

@@ -4,7 +4,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.services import email_service
-from app.schemas.trip_schema import SendSummaryRequest, AiTripSummaryRequest
+from app.schemas.trip_schema import SendSummaryRequest
+from app.schemas.ai_schema import AiTripSummaryRequest
 
 router = APIRouter(prefix="/emails", tags=["Emails"])
 

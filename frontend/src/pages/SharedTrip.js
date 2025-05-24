@@ -18,7 +18,7 @@ export default function SharedTripRedirect() {
           tripId = res.data.id;
         } else {
           res = await getSharedTrip(uuid);
-          tripId = res.data.trip_id;
+          tripId = res.data.id;
         }
 
         navigate(`/trips/${tripId}`);

@@ -4,11 +4,14 @@ from sqlalchemy.orm import Session
 from sqlalchemy import or_, func
 from fastapi import HTTPException
 from app.schemas.trip_schema import TripCreate
+from app.schemas.trip_schema import AiTripCloneRequest
 from app.models.user_model import User
 from datetime import date, timedelta, datetime
 from typing import List
 from app.models.trip_model import Trip
 from app.models.activity_model import Activity
+
+DEFAULT_TRIP_IMAGE = "http://localhost:8000/static/default-trip.png"
 
 # קבלת כל הטיולים של המשתמש המחובר
 def get_trips(db: Session, user_id: int, sort_by: str, page: int, limit: int):
@@ -100,6 +103,9 @@ def create_trip(trip_data: TripCreate, db: Session, current_user: User):
         data["duration_days"] = None
 
     data["user_id"] = current_user.id
+
+    if not data.get("image_url"):
+        data["image_url"] = DEFAULT_TRIP_IMAGE
 
     trip = Trip(**data, is_recommended=is_recommended)
     db.add(trip)
@@ -270,3 +276,36 @@ def build_trip_summary_text(trip: Trip) -> str:
     summary.append("Enjoy every step of your journey!\nThe PlanNGo Team")
     return "\n".join(summary)
 
+# AI שליפת טיול 
+def import_ai_trip(data: AiTripCloneRequest, db: Session, current_user: User):
+    # יצירת הטיול
+    new_trip = Trip(
+        user_id=current_user.id,
+        title=f"AI Trip to {data.destination}",
+        destination=data.destination,
+        description=f"{data.trip_type} trip with {data.travelers} travelers",
+        duration_days=data.duration_days,
+        start_date=None,
+        end_date=None,
+        image_url=DEFAULT_TRIP_IMAGE,
+        is_recommended=False,
+        created_at=datetime.utcnow()
+    )
+    db.add(new_trip)
+    db.commit()
+    db.refresh(new_trip)
+
+    for day in data.trip_plan:
+        day_number = day.get("day")
+        for act in day.get("activities", []):
+            db.add(Activity(
+                trip_id=new_trip.id,
+                day_number=day_number,
+                time=act.get("time"),
+                title=act.get("title"),
+                description=act.get("description"),
+                location_name=act.get("location_name"),
+            ))
+
+    db.commit()
+    return new_trip

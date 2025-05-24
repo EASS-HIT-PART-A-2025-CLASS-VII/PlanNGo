@@ -53,8 +53,7 @@ export default function RecommendedTripCard({ trip, onUnfavorited, onUpdated, on
   const fileInputRef = useRef();
   const [tripImage, setTripImage] = useState(trip.image_url);
 
-  const defaultImage = "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80";
-
+  const defaultImage = "/default-trip.png"; 
   useEffect(() => {
     if (isLoggedIn && trip.is_recommended) {
       isRecommendedFavorite(trip.id)
@@ -124,12 +123,10 @@ export default function RecommendedTripCard({ trip, onUnfavorited, onUpdated, on
       alert("Please enter a rating between 1 and 5.");
       return;
     }
+
     try {
       await rateTrip(trip.id, value);
-      alert("Thanks for rating!");
-      setAverageRating(value);
-      setShowRateModal(false);
-      setRatingInput("");
+      window.location.reload();
     } catch {
       alert("Failed to rate trip");
     }

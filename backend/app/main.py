@@ -3,6 +3,7 @@
 
 from fastapi import FastAPI
 from app.db.database import Base, engine
+from fastapi.staticfiles import StaticFiles
 from app.routes import auth
 from app.routes import trip
 from app.routes import activity
@@ -53,6 +54,8 @@ app.include_router(calendar.router, prefix="/api")
 app.include_router(ai.router, prefix="/api")
 
 start_reminder_scheduler()
+
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 @app.get("/")
 def root():

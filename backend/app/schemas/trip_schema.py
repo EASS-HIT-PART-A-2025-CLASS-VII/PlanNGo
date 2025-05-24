@@ -68,17 +68,15 @@ class SharedTripOut(BaseModel):
     class Config:
         from_attributes = True
 
-class AiTripSummaryRequest(BaseModel):
-    email: EmailStr
-    destination: str
-    days: int
-    travelers: int
-    trip_type: str
-    estimated_budget: float
-    trip_plan: List[Dict[str, Any]] 
-
 class TripPaginatedResponse(BaseModel):
     total: int
     page: int
     limit: int
     trips: List[TripOut]
+
+class AiTripCloneRequest(BaseModel):
+    destination: str
+    duration_days: int
+    trip_plan: List[Dict[str, Any]]
+    trip_type: Optional[str] = None
+    travelers: Optional[int] = None

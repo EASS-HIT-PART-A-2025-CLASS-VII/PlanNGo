@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session, joinedload
 from uuid import UUID
 from typing import List
 from app.db.database import get_db
+from app.schemas.trip_schema import AiTripCloneRequest
 from app.schemas.trip_schema import TripCreate, TripOut, TripUpdate, SharedTripOut, TripPaginatedResponse
 from app.services import trip_service
 from app.models.user_model import User
@@ -80,4 +81,10 @@ def view_shared_trip(share_uuid: UUID, db: Session = Depends(get_db)):
     if not trip:
         raise HTTPException(status_code=404, detail="Shared trip not found")
     return trip
+
+# לטיולים שלי AI העברת טיול 
+@router.post("/clone-ai-trip", response_model=TripOut)
+def clone_ai_trip_to_my_trips(request: AiTripCloneRequest, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    print("Received trip data:", request)
+    return trip_service.import_ai_trip(request, db, current_user)
 

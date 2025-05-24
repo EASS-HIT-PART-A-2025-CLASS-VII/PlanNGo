@@ -14,7 +14,7 @@ from app.models.trip_model import Trip
 from sqlalchemy.orm import Session
 from datetime import date
 import tempfile
-from app.schemas.trip_schema import AiTripSummaryRequest
+from app.schemas.ai_schema import AiTripSummaryRequest
 from apscheduler.schedulers.background import BackgroundScheduler
 from app.db.database import SessionLocal
 

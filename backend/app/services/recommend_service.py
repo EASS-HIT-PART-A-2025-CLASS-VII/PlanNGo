@@ -7,7 +7,7 @@ from app.models.trip_model import Trip
 from app.models.user_model import User
 from app.models.rating_model import Rating
 from app.models.favorite_model import FavoriteTrip
-from app.services.trip_service import get_trip_by_id  # כדי לשלוף טיול קיים לפי ID
+from app.services.trip_service import get_trip_by_id
 from app.schemas.rating_schema import RateTripRequest
 from app.models.comment_model import Comment
 from app.schemas.comment_schema import CommentCreate, CommentResponse

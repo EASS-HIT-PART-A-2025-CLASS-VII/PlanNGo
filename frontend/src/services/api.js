@@ -88,6 +88,8 @@ export const getTripShareLink = (tripId) =>
   api.get(`/trips/${tripId}/shared-link`);
 export const getSharedTrip = (uuid) =>
   api.get(`/trips/shared-trip/${uuid}`);
+export const cloneAiTrip = (tripData) =>
+  api.post("/trips/clone-ai-trip", tripData);
 
 // ===== ACTIVITIES =====
 export const getActivities = (tripId) =>

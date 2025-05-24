@@ -1,11 +1,11 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { sendAiTripSummary } from "../services/api";
+import { sendAiTripSummary, cloneAiTrip } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import DayCard from "../components/DayCard";
 import "../css/TripCard.css";
 import "../css/TripDetails.css";
-import { FaEnvelope } from "react-icons/fa";
+import { FaEnvelope, FaSuitcase } from "react-icons/fa";
 
 export default function AiTripResult() {
   const location = useLocation();
@@ -47,6 +47,25 @@ export default function AiTripResult() {
     }
   };
 
+  const handleClone = async () => {
+    try {
+      console.log("Cloning trip:", trip);
+      const tripData = {
+        destination: trip.destination,
+        duration_days: parseInt(trip.days, 10),
+        trip_plan: trip.trip_plan,
+        trip_type: trip.trip_type,
+        travelers: parseInt(trip.travelers, 10),
+      };
+      console.log("Sending:", JSON.stringify(tripData, null, 2));
+      await cloneAiTrip(tripData);
+      alert("Trip added to your trips!");
+      navigate("/my-trips");
+    } catch (err) {
+      alert("Failed to add trip");
+    }
+  };
+
   if (!trip) {
     return (
       <div className="trip-details-header">
@@ -60,15 +79,27 @@ export default function AiTripResult() {
   return (
     <>
       <div className="trip-details-header">
-        <h2 className="trip-title">Trip to: {trip.destination}</h2>
-
-        <button
-          className="trip-btn outline"
-          title="Send trip summary to email"
-          onClick={handleClick}
-        >
-          <FaEnvelope /> Send Me Summary
-        </button>
+        <div className="trip-header-top-row">
+          <h2 className="trip-title">Trip to: {trip.destination}</h2>
+          <div className="trip-header-actions">
+            <button
+              className="trip-btn icon"
+              title="Send trip summary to email"
+              onClick={handleClick}
+            >
+              <FaEnvelope />
+            </button>
+            {user && (
+              <button
+                className="trip-btn icon"
+                title="Add to My Trips"
+                onClick={handleClone}
+              >
+                <FaSuitcase />
+              </button>
+            )}
+          </div>
+        </div>
 
         <div className="trip-details-icons">
           <div className="trip-detail-item">
@@ -88,22 +119,15 @@ export default function AiTripResult() {
 
       <div className="trip-grid-full">
         {trip.trip_plan.map((day) => (
-          <DayCard
-            key={day.day}
-            index={day.day - 1}
-            activities={day.activities}
-          />
+          <DayCard key={day.day} index={day.day - 1} activities={day.activities} />
         ))}
       </div>
 
-      {/* Email modal */}
       {showEmailModal && (
         <div className="modal-overlay" onClick={() => setShowEmailModal(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-content">
-              <button className="modal-close" onClick={() => setShowEmailModal(false)}>
-                ×
-              </button>
+              <button className="modal-close" onClick={() => setShowEmailModal(false)}>×</button>
               <h3>Send Summary</h3>
               <input
                 type="email"

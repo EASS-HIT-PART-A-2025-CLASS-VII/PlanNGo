@@ -13,7 +13,7 @@ from app.services.email_service import send_reset_email
 from app.schemas.user_schema import ResetPasswordRequest
 from app.schemas.user_schema import UpdateProfileRequest
 
-DEFAULT_PROFILE_IMAGE = "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y"
+DEFAULT_PROFILE_IMAGE = "http://localhost:8000/static/default-profile.jpg"
 
 # פונקציה ליצירת משתמש חדש
 def create_user(user_data: UserCreate, db: Session):

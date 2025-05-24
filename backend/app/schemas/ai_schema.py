@@ -1,5 +1,5 @@
-from pydantic import BaseModel
-from typing import Optional
+from pydantic import BaseModel, EmailStr
+from typing import Optional, List, Dict, Any
 
 class TripRequestAI(BaseModel):
     destination: str
@@ -7,3 +7,11 @@ class TripRequestAI(BaseModel):
     num_travelers: int
     trip_type: Optional[str] = None
 
+class AiTripSummaryRequest(BaseModel):
+    email: EmailStr
+    destination: str
+    days: int
+    travelers: int
+    trip_type: str
+    estimated_budget: float
+    trip_plan: List[Dict[str, Any]] 

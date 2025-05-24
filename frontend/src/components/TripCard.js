@@ -43,8 +43,7 @@ export default function TripCard({ trip, onUnfavorited, onDeleted, onUpdated }) 
 
   const navigate = useNavigate();
 
-  const defaultImage =
-    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80";
+  const defaultImage = "/default-trip.png"; 
 
   useEffect(() => {
     if (typeof editedTrip.id === "number") {
