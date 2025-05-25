@@ -39,7 +39,3 @@
 .actions-cell button:hover {
   transform: scale(1.1);
 }
-
-.delete-btn {
-  color: darkred;
-}

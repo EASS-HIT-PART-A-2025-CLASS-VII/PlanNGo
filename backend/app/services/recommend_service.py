@@ -140,27 +140,6 @@ def enrich_with_average_rating(trips, db):
         trip.average_rating = round(avg, 2) if avg is not None else None
     return trips
 
-# קבלת הטיולים המומלצים עם הדירוגים הגבוהים ביותר
-def get_top_rated_trips(db: Session, limit: int = 10):
-    top_trip_ids = (
-        db.query(
-            Trip.id
-        )
-        .join(Rating, Trip.id == Rating.trip_id)
-        .filter(Trip.is_recommended == True)
-        .group_by(Trip.id)
-        .order_by(desc(func.avg(Rating.rating)))
-        .limit(limit)
-        .all()
-    )
-
-    top_ids = [row[0] for row in top_trip_ids]
-    trips = db.query(Trip).filter(Trip.id.in_(top_ids)).all()
-    id_to_trip = {trip.id: trip for trip in trips}
-    ordered_trips = [id_to_trip[trip_id] for trip_id in top_ids]
-
-    return enrich_with_average_rating(ordered_trips, db)
-  
 # הוספת תגובה לטיול מומלץ
 def add_comment_to_trip(trip_id: int, user: User, comment_data: CommentCreate, db: Session):
     trip = db.query(Trip).filter(Trip.id == trip_id, Trip.is_recommended == True).first()

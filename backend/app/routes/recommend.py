@@ -49,11 +49,6 @@ def rate_recommended_trip(
     db: Session = Depends(get_db)):
     return recommend_service.rate_trip(trip_id, rating_data, current_user, db)
 
-# קבלת טיולים מומלצים עם הדירוגים הגבוהים ביותר
-@router.get("/top-rated", response_model=List[TripOut])
-def top_rated_trips(limit: int = 10, db: Session = Depends(get_db)):
-    return recommend_service.get_top_rated_trips(db, limit)
-
 # הוספת תגובה לטיול מומלץ
 @router.post("/{trip_id}/comments", response_model=CommentResponse, status_code=status.HTTP_201_CREATED)
 def create_comment_for_recommend_trip(

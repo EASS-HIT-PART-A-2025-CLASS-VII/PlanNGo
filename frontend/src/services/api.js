@@ -54,7 +54,6 @@ export const searchRecommendedTrips = ({ query, page = 1, sortBy = "recent" }) =
     `/recommended/search?title=${encoded}&description=${encoded}&destination=${encoded}&creator_name=${encoded}&page=${page}&sort_by=${sortBy}`
   );
 };
-export const getTopRatedRecommended = () => api.get("/recommended/top-rated");
 export const rateTrip = (tripId, rating) =>
   api.post(`/recommended/${tripId}/rate`, { rating });
 export const addComment = (tripId, comment) =>
@@ -92,8 +91,6 @@ export const cloneAiTrip = (tripData) =>
   api.post("/trips/clone-ai-trip", tripData);
 
 // ===== ACTIVITIES =====
-export const getActivities = (tripId) =>
-  api.get(`/trips/${tripId}/activities`);
 export const getActivitiesByDay = (tripId, dayNumber) =>
   api.get(`/trips/${tripId}/activities/day/${dayNumber}`);
 export const createActivity = (tripId, activity) =>

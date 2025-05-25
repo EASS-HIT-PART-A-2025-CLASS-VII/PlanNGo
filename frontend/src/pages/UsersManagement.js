@@ -61,7 +61,7 @@ export default function UsersManagement() {
                   <button onClick={() => goToUserTrips(user.id)} title="View trips">
                     <FaSuitcase />
                   </button>
-                  <button onClick={() => handleDelete(user.id)} title="Delete user" className="delete-btn">
+                  <button onClick={() => handleDelete(user.id)} title="Delete user">
                     <FaTrash />
                   </button>
                 </td>
