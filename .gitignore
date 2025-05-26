@@ -31,3 +31,5 @@ dist/
 frontend/.env
 frontend/npm-debug.log
 frontend/yarn-error.log
+
+**/client-secret.json
