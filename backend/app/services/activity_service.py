@@ -15,7 +15,6 @@ def get_activities_by_trip_and_day(db: Session, trip_id: int, day_number: int):
         Activity.day_number == day_number
     ).order_by(Activity.time).all()
 
-
 # פעילות לפי מזהה 
 def get_activity_by_id(activity_id: int, db: Session) -> Activity:
     activity = db.query(Activity).filter(Activity.id == activity_id).first()
@@ -37,6 +36,16 @@ def create_activity(db: Session, activity: ActivityCreate, trip_id: int, current
         if trip.user_id != current_user.id:
             raise HTTPException(status_code=403, detail="Not authorized to add activity to this trip")
 
+     # ולידציות על שדות חובה
+    if activity.day_number is None:
+        raise HTTPException(status_code=400, detail="Day number is required")
+    
+    if not activity.title or not activity.title.strip():
+        raise HTTPException(status_code=400, detail="Activity title is required")
+
+    if not activity.location_name or not activity.location_name.strip():
+        raise HTTPException(status_code=400, detail="Activity location is required")
+    
     db_activity = Activity(
         trip_id=trip_id,
         day_number=activity.day_number,
@@ -66,6 +75,16 @@ def update_activity(db: Session, activity_id: int, updated_data: ActivityUpdate,
         if trip.user_id != current_user.id:
             raise HTTPException(status_code=403, detail="Not authorized to update this activity")
 
+     # ולידציות על שדות חובה
+    if db_activity.day_number is None:
+        raise HTTPException(status_code=400, detail="Day number is required")
+    
+    if not db_activity.title or not db_activity.title.strip():
+        raise HTTPException(status_code=400, detail="Activity title is required")
+
+    if not db_activity.location_name or not db_activity.location_name.strip():
+        raise HTTPException(status_code=400, detail="Activity location is required")
+    
     updated_fields = updated_data.dict(exclude_unset=True)
 
     for key, value in updated_fields.items():

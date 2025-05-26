@@ -64,8 +64,16 @@ export default function Signup() {
       });
       navigate("/login");
     } catch (err) {
-      setError("Signup failed. Please try again.");
-    }
+        if (err.response?.data?.detail) {
+          alert(err.response.data.detail);
+        } else if (err.response?.data) {
+          alert(JSON.stringify(err.response.data));
+        } else if (err.message) {
+          alert(err.message);
+        } else {
+          alert("Something went wrong");
+        }
+      }
   };
 
   return (

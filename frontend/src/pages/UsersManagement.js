@@ -30,9 +30,16 @@ export default function UsersManagement() {
       await deleteUser(userId);
       setUsers(users.filter((u) => u.id !== userId));
     } catch (err) {
-      console.error("Delete failed", err);
-      alert("Failed to delete user");
-    }
+        if (err.response?.data?.detail) {
+          alert(err.response.data.detail);
+        } else if (err.response?.data) {
+          alert(JSON.stringify(err.response.data));
+        } else if (err.message) {
+          alert(err.message);
+        } else {
+          alert("Something went wrong");
+        }
+      }
   };
 
   const goToUserTrips = (userId) => {

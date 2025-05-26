@@ -83,31 +83,43 @@ def handle_search_trips(
 # יצירת טיול
 def create_trip(trip_data: TripCreate, db: Session, current_user: User):
     data = trip_data.dict()
+
+    title = data.get("title", "").strip()
+    destination = data.get("destination", "").strip()
     start = data.get("start_date")
     end = data.get("end_date")
     duration = data.get("duration_days")
-    is_recommended = False  # טיול של משתמש רגיל
 
-    # אם יש תאריכים – לחשב מהם את המשך
+    # ולידציה: חובה למלא כותרת ויעד
+    if not title:
+        raise HTTPException(status_code=400, detail="Trip title is required.")
+    if not destination:
+        raise HTTPException(status_code=400, detail="Trip destination is required.")
+
+    # ולידציה: אם יש תאריכים – לחשב משך ולוודא שתחילה לפני סוף
     if start and end:
         if start > end:
-            raise HTTPException(status_code=400, detail="start_date must be before end_date.")
+            raise HTTPException(status_code=400, detail="start_date must be before or equal to end_date.")
         data["duration_days"] = (end - start).days + 1
 
-    # אם אין תאריכים, אבל המשתמש נתן משך – להשאיר כפי שהוא
+    # אם אין תאריכים, אבל יש משך – להשתמש בו
     elif not start and not end and duration:
         data["duration_days"] = duration
 
-    # אם אין תאריכים ואין משך – לשים None
+    # אם אין כלום – משך יהיה None
     else:
         data["duration_days"] = None
 
+    # הגדרת שדות נוספים
     data["user_id"] = current_user.id
+    data["is_recommended"] = False
 
+    # תמונה ברירת מחדל אם לא סופקה
     if not data.get("image_url"):
         data["image_url"] = DEFAULT_TRIP_IMAGE
 
-    trip = Trip(**data, is_recommended=is_recommended)
+    # יצירת הטיול
+    trip = Trip(**data)
     db.add(trip)
     db.commit()
     db.refresh(trip)
@@ -133,12 +145,19 @@ def update_trip(trip_id: int, trip_data: dict, db: Session, current_user: User):
         if trip_data["is_recommended"] != trip.is_recommended and not current_user.is_admin:
             raise HTTPException(status_code=403, detail="Only admins can change 'is_recommended'.")
 
+    # ולידציה: אם יש כותרת/יעד – לוודא שאינם ריקים
+    if "title" in trip_data and not str(trip_data["title"]).strip():
+        raise HTTPException(status_code=400, detail="Trip title is required.")
+    if "destination" in trip_data and not str(trip_data["destination"]).strip():
+        raise HTTPException(status_code=400, detail="Trip destination is required.")
     # עדכון רק של השדות שנשלחו
     for key, value in trip_data.items():
         setattr(trip, key, value)
 
     # חישוב אורך רק אם יש תאריכים
     if trip.start_date and trip.end_date:
+        if trip.start_date > trip.end_date:
+            raise HTTPException(status_code=400, detail="start_date must be before end_date.")
         trip.duration_days = (trip.end_date - trip.start_date).days + 1
 
     db.commit()
@@ -169,18 +188,8 @@ def clone_recommended_trip(trip_id: int, db: Session, current_user: User):
     end_date = None
     duration_days = None
 
-    # נשתמש בתאריכים אם קיימים
-    if original.start_date and original.end_date:
-        start_date = original.start_date
-        end_date = original.end_date
-        duration_days = (end_date - start_date).days + 1
-    elif original.duration_days is not None:
+    if original.duration_days is not None:
         duration_days = original.duration_days
-    else:
-        duration_days = 3  # fallback למקרה נדיר שאין כלום
-
-    print("CLONE DEBUG: original duration_days:", original.duration_days)
-    print("CLONE DEBUG: final duration_days to save:", duration_days)
 
     cloned_trip = Trip(
         title=original.title,
@@ -278,6 +287,15 @@ def build_trip_summary_text(trip: Trip) -> str:
 
 # AI שליפת טיול 
 def import_ai_trip(data: AiTripCloneRequest, db: Session, current_user: User):
+    if not data.destination or not data.destination.strip():
+        raise HTTPException(status_code=400, detail="Destination is required")
+
+    if not isinstance(data.trip_plan, list) or not data.trip_plan:
+        raise HTTPException(status_code=400, detail="Trip plan must include at least one day")
+
+    if data.duration_days is None or data.duration_days <= 0:
+        raise HTTPException(status_code=400, detail="Invalid duration days value")
+
     # יצירת הטיול
     new_trip = Trip(
         user_id=current_user.id,

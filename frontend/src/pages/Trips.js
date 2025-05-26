@@ -54,13 +54,22 @@ export default function Trips() {
           setTrips(res.data.trips);
           setTotal(res.data.total || 0);
         }
-      } catch (error) {
-        console.error("Search error:", error);
-        setTrips([]);
-      } finally {
-        setLoading(false);
-      }
-    }, 500);
+      } catch (err) {
+          if (err.response?.data?.detail) {
+            alert(err.response.data.detail);
+          } else if (err.response?.data) {
+            alert(JSON.stringify(err.response.data));
+          } else if (err.message) {
+            alert(err.message);
+          } else {
+            alert("Something went wrong");
+          }
+
+          setTrips([]);
+        } finally {
+          setLoading(false);
+        }
+      }, 500);
 
     return () => clearTimeout(delaySearch);
   }, [searchQuery, page, sortBy, creatingInlineTrip, userId]);
@@ -75,11 +84,19 @@ export default function Trips() {
         const res = await getMyTrips({ page: 1, sortBy });
         setTrips(res.data.trips);
         setTotal(res.data.total);
-      } catch (error) {
-        console.error("All trips fetch failed:", error);
-      } finally {
-        setLoading(false);
-      }
+      } catch (err) {
+          if (err.response?.data?.detail) {
+            alert(err.response.data.detail);
+          } else if (err.response?.data) {
+            alert(JSON.stringify(err.response.data));
+          } else if (err.message) {
+            alert(err.message);
+          } else {
+            alert("Something went wrong");
+          }
+        }finally {
+          setLoading(false);
+        }
     } else {
       try {
         setLoading(true);
@@ -141,8 +158,16 @@ export default function Trips() {
         setTotal(res.data.total);
       }
     } catch (err) {
-      console.error("Failed to fetch recommended trips:", err);
-    } finally {
+        if (err.response?.data?.detail) {
+          alert(err.response.data.detail);
+        } else if (err.response?.data) {
+          alert(JSON.stringify(err.response.data));
+        } else if (err.message) {
+          alert(err.message);
+        } else {
+          alert("Something went wrong");
+        }
+      } finally {
       setLoading(false);
     }
   };

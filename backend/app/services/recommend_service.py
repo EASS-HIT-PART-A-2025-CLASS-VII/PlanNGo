@@ -6,7 +6,7 @@ from fastapi import HTTPException, status
 from app.models.trip_model import Trip
 from app.models.user_model import User
 from app.models.rating_model import Rating
-from app.models.favorite_model import FavoriteTrip
+from app.models.favorite_model import FavoriteRecommendedTrip
 from app.services.trip_service import get_trip_by_id
 from app.schemas.rating_schema import RateTripRequest
 from app.models.comment_model import Comment
@@ -26,7 +26,7 @@ def get_recommended_trips(db: Session, sort_by: str, page: int, limit: int):
             .order_by(nulls_last(avg_rating.desc()))
         )
     elif sort_by == "favorites":
-        query = query.outerjoin(FavoriteTrip).group_by(Trip.id).order_by(func.count(FavoriteTrip.id).desc())
+        query = query.outerjoin(FavoriteRecommendedTrip).group_by(Trip.id).order_by(func.count(FavoriteRecommendedTrip.id).desc())
     elif sort_by == "random":
         query = query.order_by(func.random())
 
@@ -62,10 +62,8 @@ def handle_search_recommended_trips(
         filters.append(Trip.destination.ilike(f"%{destination.strip()}%"))
 
     if filters:
-        print("Filters applied:", filters)
         query = query.filter(or_(*filters))
     else:
-        print("No filters applied")
         return {"total": 0, "page": page, "limit": limit, "trips": []}
 
     if sort_by == "top_rated":

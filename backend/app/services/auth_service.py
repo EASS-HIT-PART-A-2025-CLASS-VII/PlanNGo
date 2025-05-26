@@ -17,6 +17,20 @@ DEFAULT_PROFILE_IMAGE = "http://localhost:8000/static/default-profile.jpg"
 
 # פונקציה ליצירת משתמש חדש
 def create_user(user_data: UserCreate, db: Session):
+    # ולידציה: שם משתמש חובה
+    if not user_data.username or not user_data.username.strip():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Username is required"
+        )
+
+    # ולידציה: מייל חובה
+    if not user_data.email or not user_data.email.strip():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email is required"
+        )
+
     # בדיקה אם כבר קיים משתמש עם אותו שם משתמש
     existing_username = db.query(User).filter(User.username == user_data.username).first()
     if existing_username:
@@ -33,13 +47,13 @@ def create_user(user_data: UserCreate, db: Session):
             detail="Email already registered"
         )
 
-    #  הצפנת הסיסמה של המשתמש  
+    # הצפנת הסיסמה של המשתמש
     hashed_password = hash_password(user_data.password)
 
     # יצירת משתמש חדש
     new_user = User(
-        username=user_data.username,
-        email=user_data.email,
+        username=user_data.username.strip(),
+        email=user_data.email.strip(),
         password=hashed_password,
         profile_image_url=user_data.profile_image_url or DEFAULT_PROFILE_IMAGE
     )
@@ -115,15 +129,26 @@ def reset_user_password(request: ResetPasswordRequest, db: Session):
 # פונקציה לעדכון פרופיל משתמש
 def update_user_profile(current_user: User, request: UpdateProfileRequest, db):
     current_user = db.merge(current_user)
-    if request.update_username:
+
+    # אם נשלח עדכון לשם משתמש – נוודא תקינות ועדכניות
+    if request.update_username is not None:
+        if not request.update_username.strip():
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Username is required"
+            )
+
         existing_user = db.query(User).filter(User.username == request.update_username).first()
         if existing_user and existing_user.id != current_user.id:
             raise HTTPException(status_code=400, detail="Username already taken")
-        current_user.username = request.update_username
 
+        current_user.username = request.update_username.strip()
+
+    # עדכון סיסמה אם נשלחה
     if request.update_password:
         current_user.password = hash_password(request.update_password)
 
+    # עדכון תמונת פרופיל אם נשלחה
     if request.update_profile_image_url:
         current_user.profile_image_url = str(request.update_profile_image_url)
 

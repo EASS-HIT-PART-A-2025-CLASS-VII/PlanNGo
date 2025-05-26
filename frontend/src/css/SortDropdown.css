@@ -6,7 +6,7 @@
 .sort-menu {
   position: absolute;
   top: 110%;
-  left: 0;
+  right: 0;
   background: white;
   border: 1px solid #ddd;
   border-radius: 10px;

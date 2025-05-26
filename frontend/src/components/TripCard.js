@@ -67,8 +67,16 @@ export default function TripCard({ trip, onUnfavorited, onDeleted, onUpdated }) 
         onUnfavorited(editedTrip.id);
       }
     } catch (err) {
-      console.error("Toggle favorite failed", err);
-    }
+        if (err.response?.data?.detail) {
+          alert(err.response.data.detail);
+        } else if (err.response?.data) {
+          alert(JSON.stringify(err.response.data));
+        } else if (err.message) {
+          alert(err.message);
+        } else {
+          alert("Something went wrong");
+        }
+      }
   };
 
   const handleShare = async (e) => {
@@ -78,8 +86,16 @@ export default function TripCard({ trip, onUnfavorited, onDeleted, onUpdated }) 
       const url = res.data.share_link;
       await navigator.share({ title: editedTrip.title, text: editedTrip.description, url });
     } catch (err) {
-      console.error("Share failed", err);
-    }
+        if (err.response?.data?.detail) {
+          alert(err.response.data.detail);
+        } else if (err.response?.data) {
+          alert(JSON.stringify(err.response.data));
+        } else if (err.message) {
+          alert(err.message);
+        } else {
+          alert("Something went wrong");
+        }
+      }
   };
 
   const handleCalendarSync = (e) => {
@@ -100,8 +116,16 @@ export default function TripCard({ trip, onUnfavorited, onDeleted, onUpdated }) 
       setBudget(res.data.estimated_budget);
       setShowTravelersModal(false);
     } catch (err) {
-      alert("Failed to calculate budget");
-    } finally {
+        if (err.response?.data?.detail) {
+          alert(err.response.data.detail);
+        } else if (err.response?.data) {
+          alert(JSON.stringify(err.response.data));
+        } else if (err.message) {
+          alert(err.message);
+        } else {
+          alert("Something went wrong");
+        }
+      } finally {
       setLoadingBudget(false);
     }
   };
@@ -112,8 +136,16 @@ export default function TripCard({ trip, onUnfavorited, onDeleted, onUpdated }) 
       await sendTripSummary(editedTrip.id);
       alert("Trip summary sent to your email.");
     } catch (err) {
-      alert("Failed to send summary.");
-    }
+        if (err.response?.data?.detail) {
+          alert(err.response.data.detail);
+        } else if (err.response?.data) {
+          alert(JSON.stringify(err.response.data));
+        } else if (err.message) {
+          alert(err.message);
+        } else {
+          alert("Something went wrong");
+        }
+      }
   };
 
   const handleEditToggle = (e) => {
@@ -127,12 +159,6 @@ export default function TripCard({ trip, onUnfavorited, onDeleted, onUpdated }) 
 
   const handleEditSave = async (e) => {
     e.stopPropagation();
-
-    if (!editedTrip.title?.trim() || !editedTrip.destination?.trim()) {
-      alert("Title and Destination are required.");
-      return;
-    }
-
     try {
       if (typeof trip.id === "string" && trip.id.startsWith("temp")) {
         const created = await createTrip(editedTrip);
@@ -159,16 +185,31 @@ export default function TripCard({ trip, onUnfavorited, onDeleted, onUpdated }) 
         onUpdated(trip.id, updated);
       }
     } catch (err) {
-      alert("Failed to save trip.");
-    }
+        if (err.response?.data?.detail) {
+          alert(err.response.data.detail);
+        } else if (err.response?.data) {
+          alert(JSON.stringify(err.response.data));
+        } else if (err.message) {
+          alert(err.message);
+        } else {
+          alert("Something went wrong");
+        }
+      }
   };
 
   const handleEditCancel = (e) => {
     e.stopPropagation();
+
+    if (typeof trip.id === "string" && trip.id.startsWith("temp")) {
+      if (onDeleted) onDeleted(trip.id); 
+      return;
+    }
+
     setEditedTrip({ ...trip });
     setTripImage(trip.image_url);
     setIsEditing(false);
   };
+
 
   const handleDelete = async (e) => {
     e.stopPropagation();
@@ -177,8 +218,16 @@ export default function TripCard({ trip, onUnfavorited, onDeleted, onUpdated }) 
         await deleteTrip(editedTrip.id);
         alert("Trip deleted successfully.");
         if (onDeleted) onDeleted(editedTrip.id);
-      } catch (err) {
-        alert("Failed to delete trip.");
+    } catch (err) {
+        if (err.response?.data?.detail) {
+          alert(err.response.data.detail);
+        } else if (err.response?.data) {
+          alert(JSON.stringify(err.response.data));
+        } else if (err.message) {
+          alert(err.message);
+        } else {
+          alert("Something went wrong");
+        }
       }
     }
   };
@@ -214,8 +263,16 @@ export default function TripCard({ trip, onUnfavorited, onDeleted, onUpdated }) 
       await convertToRecommended(trip.id);
       alert("Trip converted to recommended.");
     } catch (err) {
-      alert("Failed to convert.");
-    }
+        if (err.response?.data?.detail) {
+          alert(err.response.data.detail);
+        } else if (err.response?.data) {
+          alert(JSON.stringify(err.response.data));
+        } else if (err.message) {
+          alert(err.message);
+        } else {
+          alert("Something went wrong");
+        }
+      }
   };
 
   return (
@@ -273,23 +330,41 @@ export default function TripCard({ trip, onUnfavorited, onDeleted, onUpdated }) 
 
         {isEditing ? (
           <div className="trip-edit-controls">
-            {["title", "destination"].map((key) => (
-              <div key={key} className="input-with-icon">
-                <span className="icon">{key === "title" ? "📌" : "📍"}</span>
-                <input
-                  value={editedTrip[key] || ""}
-                  onChange={(e) => handleEditChange(key, e.target.value)}
+            <div className="input-with-icon">
+              <span className="icon">📌</span>
+              <input
+                  value={editedTrip.title || ""}
+                  onChange={(e) => handleEditChange("title", e.target.value)}
+                  placeholder="Title"
                   required
-                />
-              </div>
-            ))}
+              />
+            </div>
+
+            <div className="input-with-icon">
+              <span className="icon">📍</span>
+              <input
+                  value={editedTrip.destination || ""}
+                  onChange={(e) => handleEditChange("destination", e.target.value)}
+                  placeholder="Destination"
+                  required
+              />
+            </div>
+
             <div className="input-with-icon">
               <span className="icon">📝</span>
-              <textarea value={editedTrip.description || ""} onChange={(e) => handleEditChange("description", e.target.value)} />
+              <textarea value={editedTrip.description || ""} onChange={(e) => handleEditChange("description", e.target.value)} placeholder="Description" />
             </div>
+
             <div className="input-with-icon">
               <span className="icon">⏳</span>
-              <input type="number" value={editedTrip.duration_days || ""} onChange={(e) => handleEditChange("duration_days", e.target.value)} />
+              <input
+                type="number"
+                placeholder="Duration"
+                value={editedTrip.duration_days ?? ""}
+                onChange={(e) =>
+                  handleEditChange("duration_days", e.target.value ? parseInt(e.target.value, 10) : "")
+                }
+              />
             </div>
             {["start_date", "end_date"].map((key) => (
               <div key={key} className="input-with-icon">

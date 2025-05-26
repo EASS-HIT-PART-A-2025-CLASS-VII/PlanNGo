@@ -76,8 +76,16 @@ export default function Profile() {
       setMessage("Profile updated successfully!");
       setInitialData((prev) => ({ ...prev, username }));
     } catch (err) {
-      setMessage("Failed to update profile");
-    }
+        if (err.response?.data?.detail) {
+          alert(err.response.data.detail);
+        } else if (err.response?.data) {
+          alert(JSON.stringify(err.response.data));
+        } else if (err.message) {
+          alert(err.message);
+        } else {
+          alert("Something went wrong");
+        }
+      }
   };
 
   const handleResetRequest = async () => {

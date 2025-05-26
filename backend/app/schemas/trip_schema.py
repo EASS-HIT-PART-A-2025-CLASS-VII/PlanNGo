@@ -36,8 +36,8 @@ class TripOut(BaseModel):
         
 # לעריכת טיול 
 class TripUpdate(BaseModel):
-    title: Optional[str] = None
-    destination: Optional[str] = None
+    title: str
+    destination: str
     description: Optional[str] = None
     is_recommended: Optional[bool] = None
     duration_days: Optional[int] = None

@@ -23,10 +23,19 @@ export default function SharedTripRedirect() {
 
         navigate(`/trips/${tripId}`);
       } catch (err) {
-        console.error("Invalid shared link", err);
-        navigate("/not-found");
-      }
-    };
+          if (err.response?.data?.detail) {
+            alert(err.response.data.detail);
+          } else if (err.response?.data) {
+            alert(JSON.stringify(err.response.data));
+          } else if (err.message) {
+            alert(err.message);
+          } else {
+            alert("Something went wrong");
+          }
+
+          navigate("/not-found");
+        }
+      };
 
     fetchAndRedirect();
   }, [uuid, navigate, location.pathname]);

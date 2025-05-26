@@ -57,13 +57,20 @@ export default function AiTripResult() {
         trip_type: trip.trip_type,
         travelers: parseInt(trip.travelers, 10),
       };
-      console.log("Sending:", JSON.stringify(tripData, null, 2));
       await cloneAiTrip(tripData);
       alert("Trip added to your trips!");
       navigate("/my-trips");
     } catch (err) {
-      alert("Failed to add trip");
-    }
+        if (err.response?.data?.detail) {
+          alert(err.response.data.detail);
+        } else if (err.response?.data) {
+          alert(JSON.stringify(err.response.data));
+        } else if (err.message) {
+          alert(err.message);
+        } else {
+          alert("Something went wrong");
+        }
+      }
   };
 
   if (!trip) {

@@ -11,7 +11,6 @@ export default function TripDetails() {
   const [trip, setTrip] = useState(null);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
-  const isAdmin = user?.is_admin;
 
   useEffect(() => {
     const fetchTrip = async () => {
@@ -19,7 +18,15 @@ export default function TripDetails() {
         const response = await getTripById(trip_id);
         setTrip(response.data);
       } catch (err) {
-        console.error("Failed to fetch trip details", err);
+          if (err.response?.data?.detail) {
+            alert(err.response.data.detail);
+          } else if (err.response?.data) {
+            alert(JSON.stringify(err.response.data));
+          } else if (err.message) {
+            alert(err.message);
+          } else {
+            alert("Something went wrong");
+          }
       } finally {
         setLoading(false);
       }
@@ -27,10 +34,6 @@ export default function TripDetails() {
 
     fetchTrip();
   }, [trip_id]);
-
-  const handleAddDay = () => {
-    alert("Add new day functionality coming soon!");
-  };
 
   if (loading) return <p className="trip-loading">Loading trip details...</p>;
   if (!trip) return <p className="trip-error">Trip not found</p>;

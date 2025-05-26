@@ -43,8 +43,16 @@ export default function RecommendedTrips() {
             setTrips(res.data.trips);
             setTotal(res.data.total || 0); 
           }
-        } catch (error) {
-          console.error("Search error:", error);
+        } catch (err) {
+          if (err.response?.data?.detail) {
+            alert(err.response.data.detail);
+          } else if (err.response?.data) {
+            alert(JSON.stringify(err.response.data));
+          } else if (err.message) {
+            alert(err.message);
+          } else {
+            alert("Something went wrong");
+          }
           setTrips([]);
         } finally {
           setLoading(false);
@@ -64,8 +72,16 @@ export default function RecommendedTrips() {
         const res = await getRecommendedTrips({ page: 1, sortBy });
         setTrips(res.data.trips);
         setTotal(res.data.total);
-      } catch (error) {
-        console.error("All trips fetch failed:", error);
+    } catch (err) {
+        if (err.response?.data?.detail) {
+          alert(err.response.data.detail);
+        } else if (err.response?.data) {
+          alert(JSON.stringify(err.response.data));
+        } else if (err.message) {
+          alert(err.message);
+        } else {
+          alert("Something went wrong");
+        }
       } finally {
         setLoading(false);
       }
@@ -75,8 +91,16 @@ export default function RecommendedTrips() {
         const res = await getFavoriteRecommended();
         setTrips(res.data);
         setMode("favorites");
-      } catch (error) {
-        console.error("Favorites fetch failed:", error);
+    } catch (err) {
+        if (err.response?.data?.detail) {
+          alert(err.response.data.detail);
+        } else if (err.response?.data) {
+          alert(JSON.stringify(err.response.data));
+        } else if (err.message) {
+          alert(err.message);
+        } else {
+          alert("Something went wrong");
+        }
       } finally {
         setLoading(false);
       }
@@ -138,8 +162,16 @@ export default function RecommendedTrips() {
           setTrips(res.data.trips);
           setTotal(res.data.total);
         }
-      } catch (err) {
-        console.error("Failed to fetch recommended trips:", err);
+    } catch (err) {
+        if (err.response?.data?.detail) {
+          alert(err.response.data.detail);
+        } else if (err.response?.data) {
+          alert(JSON.stringify(err.response.data));
+        } else if (err.message) {
+          alert(err.message);
+        } else {
+          alert("Something went wrong");
+        }
       } finally {
         setLoading(false);
       }

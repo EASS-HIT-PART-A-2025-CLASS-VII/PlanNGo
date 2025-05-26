@@ -14,8 +14,16 @@ export default function RecommendedComments({ tripId, onClose, user }) {
       const res = await getComments(tripId);
       setComments(res.data);
     } catch (err) {
-      console.error("Failed to fetch comments", err);
-    } finally {
+        if (err.response?.data?.detail) {
+          alert(err.response.data.detail);
+        } else if (err.response?.data) {
+          alert(JSON.stringify(err.response.data));
+        } else if (err.message) {
+          alert(err.message);
+        } else {
+          alert("Something went wrong");
+        }
+      } finally {
       setLoading(false);
     }
   };
@@ -25,8 +33,16 @@ export default function RecommendedComments({ tripId, onClose, user }) {
       await deleteComment(commentId);
       setComments((prev) => prev.filter((c) => c.id !== commentId));
     } catch (err) {
-      console.error("Delete failed", err);
-    }
+        if (err.response?.data?.detail) {
+          alert(err.response.data.detail);
+        } else if (err.response?.data) {
+          alert(JSON.stringify(err.response.data));
+        } else if (err.message) {
+          alert(err.message);
+        } else {
+          alert("Something went wrong");
+        }
+      }
   };
 
   const handleAdd = async () => {
@@ -36,9 +52,16 @@ export default function RecommendedComments({ tripId, onClose, user }) {
       setNewComment("");
       fetchComments();
     } catch (err) {
-      console.error("Add comment failed", err);
-      alert("Failed to add comment");
-    }
+        if (err.response?.data?.detail) {
+          alert(err.response.data.detail);
+        } else if (err.response?.data) {
+          alert(JSON.stringify(err.response.data));
+        } else if (err.message) {
+          alert(err.message);
+        } else {
+          alert("Something went wrong");
+        }
+      }
   };
 
   const handleKeyDown = (e) => {

@@ -85,8 +85,16 @@ export default function DayCard({ index, tripId, activities: propActivities, can
       setActivities(sortByTime(updatedList));
       setEditingId(null);
     } catch (err) {
-      alert("Failed to update activity");
-    }
+        if (err.response?.data?.detail) {
+          alert(err.response.data.detail);
+        } else if (err.response?.data) {
+          alert(JSON.stringify(err.response.data));
+        } else if (err.message) {
+          alert(err.message);
+        } else {
+          alert("Something went wrong");
+        }
+      }
   };
 
   const handleDeleteActivity = async (activityId) => {
@@ -95,8 +103,16 @@ export default function DayCard({ index, tripId, activities: propActivities, can
       await deleteActivity(activityId);
       setActivities((prev) => prev.filter((a) => a.id !== activityId));
     } catch (err) {
-      alert("Failed to delete activity");
-    }
+        if (err.response?.data?.detail) {
+          alert(err.response.data.detail);
+        } else if (err.response?.data) {
+          alert(JSON.stringify(err.response.data));
+        } else if (err.message) {
+          alert(err.message);
+        } else {
+          alert("Something went wrong");
+        }
+      }
   };
 
   const handleAddActivity = () => {
@@ -123,8 +139,16 @@ export default function DayCard({ index, tripId, activities: propActivities, can
       setActivities(sortByTime([...activities, res.data]));
       setIsAdding(false);
     } catch (err) {
-      alert("Failed to add activity");
-    }
+        if (err.response?.data?.detail) {
+          alert(err.response.data.detail);
+        } else if (err.response?.data) {
+          alert(JSON.stringify(err.response.data));
+        } else if (err.message) {
+          alert(err.message);
+        } else {
+          alert("Something went wrong");
+        }
+      }
   };
 
   const canUserEdit = canEdit || (user?.is_admin && propActivities?.[0]?.is_recommended);

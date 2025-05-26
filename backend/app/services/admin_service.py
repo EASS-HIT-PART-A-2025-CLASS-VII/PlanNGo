@@ -42,8 +42,8 @@ def recommend_trip(trip_id: int, db: Session, current_user: User):
         destination=original.destination,
         description=original.description,
         duration_days=original.duration_days,
-        start_date=original.start_date,
-        end_date=original.end_date,
+        start_date=None,
+        end_date=None,
         image_url=original.image_url,
         is_recommended=True,
         user_id=None  # טיול של המערכת, לא של משתמש
@@ -76,8 +76,12 @@ def admin_create_recommended_trip(trip_data: TripCreate, db: Session):
     duration = data.get("duration_days")
 
     if duration is None:
-        raise HTTPException(status_code=400, detail="Recommended trips require 'duration_days'.")
-
+        raise HTTPException(status_code=400, detail="Trip duration days is required.")
+    if "title" in trip_data and not str(trip_data["title"]).strip():
+        raise HTTPException(status_code=400, detail="Trip title is required.")
+    if "destination" in trip_data and not str(trip_data["destination"]).strip():
+        raise HTTPException(status_code=400, detail="Trip destination is required.")
+    
     if not data.get("image_url"):
         data["image_url"] = DEFAULT_TRIP_IMAGE
         
@@ -101,7 +105,11 @@ def admin_update_recommended_trip(trip_id: int, trip_data: dict, db: Session):
 
     if not trip.is_recommended:
         raise HTTPException(status_code=400, detail="Only recommended trips can be updated via admin.")
-
+    if "title" in trip_data and not str(trip_data["title"]).strip():
+        raise HTTPException(status_code=400, detail="Trip title is required.")
+    if "destination" in trip_data and not str(trip_data["destination"]).strip():
+        raise HTTPException(status_code=400, detail="Trip destination is required.")
+    
     for key, value in trip_data.items():
         setattr(trip, key, value)
 

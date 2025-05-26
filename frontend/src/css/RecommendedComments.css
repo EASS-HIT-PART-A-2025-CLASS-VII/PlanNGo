@@ -90,9 +90,8 @@
   font-size: 1.1rem;
   color: #111;
   font-weight: 600;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  text-align: left; 
+  margin-top: 1rem;
 }
 
 .delete-comment-btn {

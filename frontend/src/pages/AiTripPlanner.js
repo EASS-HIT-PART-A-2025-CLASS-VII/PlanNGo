@@ -17,8 +17,16 @@ export default function AiTripPlanner() {
       try {
         const response = await getTripTypes();
         setTripTypes(response.data);
-      } catch (error) {
-        console.error("Failed to load trip types:", error);
+    } catch (err) {
+        if (err.response?.data?.detail) {
+          alert(err.response.data.detail);
+        } else if (err.response?.data) {
+          alert(JSON.stringify(err.response.data));
+        } else if (err.message) {
+          alert(err.message);
+        } else {
+          alert("Something went wrong");
+        }
       }
     };
 
@@ -46,9 +54,17 @@ export default function AiTripPlanner() {
         },
       });
       
-    } catch (error) {
-      console.error("Failed to generate trip:", error);
-    }
+    } catch (err) {
+        if (err.response?.data?.detail) {
+          alert(err.response.data.detail);
+        } else if (err.response?.data) {
+          alert(JSON.stringify(err.response.data));
+        } else if (err.message) {
+          alert(err.message);
+        } else {
+          alert("Something went wrong");
+        }
+      }
   };
 
   return (
