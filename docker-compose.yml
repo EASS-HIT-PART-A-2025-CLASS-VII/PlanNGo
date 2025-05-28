@@ -1,5 +1,4 @@
-# Backend, PostgreSQL ו-AI Service
-# כולל הגדרות בנייה, פורטים, נפח נתונים וחיבורים בין קונטיינרים
+version: "3.9"
 
 services:
   db:
@@ -22,8 +21,6 @@ services:
 
   backend:
     build: ./backend
-    volumes:
-      - ./backend:/app
     ports:
       - "8000:8000"
     depends_on:
@@ -35,13 +32,11 @@ services:
       - ./backend/.env
     networks:
       - app-network
-      
+
   ai-service:
     build: ./ai_service
-    volumes:
-      - ./ai_service:/app
     ports:
-      - "8001:8000"   # חיצוני 8001 -> פנימי 8000
+      - "8001:8000"
     env_file:
       - ./ai_service/.env
     networks:
@@ -50,7 +45,7 @@ services:
   frontend:
     build: ./frontend
     ports:
-      - "3000:80"  
+      - "3000:80"
     depends_on:
       - backend
     networks:

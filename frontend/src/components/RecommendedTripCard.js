@@ -242,10 +242,17 @@ export default function RecommendedTripCard({ trip, onUnfavorited, onUpdated, on
         }
       }
       };
-    
+  
   const handleEditCancel = (e) => {
     e.stopPropagation();
+
+    if (typeof trip.id === "string" && trip.id.startsWith("temp")) {
+      if (onDeleted) onDeleted(trip.id); 
+      return;
+    }
+
     setEditedTrip({ ...trip });
+    setTripImage(trip.image_url);
     setIsEditing(false);
   };
 
