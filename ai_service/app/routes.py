@@ -29,7 +29,7 @@ def create_custom_trip(trip_request: TripRequest):
                 "trip_plan": chunk_days,
                 "estimated_budget": budget
             })
-        current_index += 10
+        current_index += len(chunk_days) 
 
     # אם אין יותר צ'אנקים (offset גדול מדי)
     raise HTTPException(status_code=404, detail="No more chunks available.")

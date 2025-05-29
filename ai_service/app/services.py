@@ -79,7 +79,7 @@ def custom_trip_plan(
                 messages=[{"role": "user", "content": prompt}],
                 temperature=0.7,
                 max_tokens=4000,
-                timeout=120,
+                timeout=500,
             )
         except OpenAIError as e:
             raise HTTPException(status_code=500, detail=str(e)) 

@@ -18,6 +18,7 @@ export default function AiTripResult() {
   const [hasMoreChunks, setHasMoreChunks] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [estimatedBudget, setEstimatedBudget] = useState(0);
+  const [firstChunk, setFirstChunk] = useState({ destination: "", days: 0, travelers: 0, trip_type: "" });
 
   const bottomRef = useRef(null);
 
@@ -25,20 +26,23 @@ export default function AiTripResult() {
   const [emailInput, setEmailInput] = useState("");
   const [sending, setSending] = useState(false);
 
-  console.log("TRIP PLAN in render:", tripPlan);
-  
   useEffect(() => {
     if (!baseTrip) return;
 
     const fetchInitialChunk = async () => {
       try {
         const res = await generateCustomTrip({ ...baseTrip, offset: 0 });
-        console.log("=== TRIP CHUNK RECEIVED ===");
-        console.log(res.trip_plan);
         setTripPlan(res.trip_plan);
         setEstimatedBudget(res.estimated_budget);
         setCurrentOffset(10);
         setHasMoreChunks(res.trip_plan.length === 10);
+
+        setFirstChunk({
+          destination: baseTrip.destination,
+          days: baseTrip.num_days,
+          travelers: baseTrip.num_travelers,
+          trip_type: baseTrip.trip_type,
+        });
       } catch (err) {
         alert("Failed to load trip.");
       }
@@ -47,7 +51,6 @@ export default function AiTripResult() {
     fetchInitialChunk();
   }, [baseTrip]);
 
-  // טעינת צאנק אוטומטית
   useEffect(() => {
     if (!hasMoreChunks || loadingMore) return;
 
@@ -84,11 +87,11 @@ export default function AiTripResult() {
       setSending(true);
       await sendAiTripSummary({
         email: emailToSend,
-        destination: baseTrip.destination,
-        days: baseTrip.days,
-        travelers: baseTrip.travelers,
-        trip_type: baseTrip.trip_type,
-        estimated_budget: baseTrip.estimated_budget,
+        destination: firstChunk.destination,
+        days: firstChunk.days,
+        travelers: firstChunk.travelers,
+        trip_type: firstChunk.trip_type,
+        estimated_budget: estimatedBudget,
         trip_plan: tripPlan,
       });
       alert("Summary sent successfully!");
@@ -112,11 +115,11 @@ export default function AiTripResult() {
   const handleClone = async () => {
     try {
       const tripData = {
-        destination: baseTrip.destination,
-        duration_days: parseInt(baseTrip.days, 10),
+        destination: firstChunk.destination,
+        duration_days: parseInt(firstChunk.days, 10),
         trip_plan: tripPlan,
-        trip_type: baseTrip.trip_type,
-        travelers: parseInt(baseTrip.travelers, 10),
+        trip_type: firstChunk.trip_type,
+        travelers: parseInt(firstChunk.travelers, 10),
       };
 
       if (user?.is_admin) {
@@ -147,7 +150,7 @@ export default function AiTripResult() {
     <>
       <div className="trip-details-header">
         <div className="trip-header-top-row">
-          <h2 className="trip-title">Trip to: {baseTrip.destination}</h2>
+          <h2 className="trip-title">Trip to: {firstChunk.destination}</h2>
           <div className="trip-header-actions">
             <button className="trip-btn icon" title="Send trip summary to email" onClick={handleClick}>
               <FaEnvelope />
@@ -165,10 +168,10 @@ export default function AiTripResult() {
         </div>
 
         <div className="trip-details-icons">
-          <div className="trip-detail-item">🗓️ {baseTrip.days} days</div>
-          <div className="trip-detail-item">👥 {baseTrip.travelers} travelers</div>
-          <div className="trip-detail-item">🧳 {baseTrip.trip_type}</div>
-          <div className="trip-detail-item">💸 ${estimatedBudget.toFixed(2)}</div>
+          <div className="trip-detail-item">⏳ {firstChunk.days} days</div>
+          <div className="trip-detail-item">👥 {firstChunk.travelers} travelers</div>
+          <div className="trip-detail-item">🧳 {firstChunk.trip_type}</div>
+          <div className="trip-detail-item">💸 ${estimatedBudget?.toFixed(2)}</div>
         </div>
       </div>
 

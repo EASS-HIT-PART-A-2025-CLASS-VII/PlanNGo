@@ -48,16 +48,16 @@ export default function AiTripPlanner() {
 
     try {
       const response = await generateCustomTrip(request);
-     navigate("/ai/trip-result", {
-      state: {
-        destination,
-        num_days: Number(days),          
-        num_travelers: Number(travelers), 
-        trip_type: tripType,
-        offset: 0,
-        ...response.data,
-      },
-    });
+      navigate("/ai/trip-result", {
+        state: {
+          destination,
+          num_days: Number(days),          
+          num_travelers: Number(travelers), 
+          trip_type: tripType,
+          offset: 0,
+          ...response.data,
+        },
+      });
     } catch (err) {
       if (err.response?.data?.detail) {
         alert(err.response.data.detail);
