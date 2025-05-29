@@ -9,6 +9,7 @@ export default function AiTripPlanner() {
   const [travelers, setTravelers] = useState("");
   const [tripType, setTripType] = useState("");
   const [tripTypes, setTripTypes] = useState([]);
+  const [isLoading, setIsLoading] = useState(false); 
 
   const navigate = useNavigate();
 
@@ -17,7 +18,7 @@ export default function AiTripPlanner() {
       try {
         const response = await getTripTypes();
         setTripTypes(response.data);
-    } catch (err) {
+      } catch (err) {
         if (err.response?.data?.detail) {
           alert(err.response.data.detail);
         } else if (err.response?.data) {
@@ -35,36 +36,41 @@ export default function AiTripPlanner() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);    
+
     const request = {
       destination,
       num_days: Number(days),
       num_travelers: Number(travelers),
       trip_type: tripType,
+      offset: 0 
     };
 
     try {
       const response = await generateCustomTrip(request);
-      navigate("/ai/trip-result", {
-        state: {
-          destination,
-          days,
-          travelers,
-          trip_type: tripType,
-          ...response.data, 
-        },
-      });
-      
+     navigate("/ai/trip-result", {
+      state: {
+        destination,
+        num_days: Number(days),          
+        num_travelers: Number(travelers), 
+        trip_type: tripType,
+        offset: 0,
+        ...response.data,
+      },
+    });
     } catch (err) {
-        if (err.response?.data?.detail) {
-          alert(err.response.data.detail);
-        } else if (err.response?.data) {
-          alert(JSON.stringify(err.response.data));
-        } else if (err.message) {
-          alert(err.message);
-        } else {
-          alert("Something went wrong");
-        }
+      if (err.response?.data?.detail) {
+        alert(err.response.data.detail);
+      } else if (err.response?.data) {
+        alert(JSON.stringify(err.response.data));
+      } else if (err.message) {
+        alert(err.message);
+      } else {
+        alert("Something went wrong");
       }
+    } finally {
+      setIsLoading(false);    
+    }
   };
 
   return (
@@ -110,7 +116,9 @@ export default function AiTripPlanner() {
             ))}
           </select>
 
-          <button type="submit">Generate Trip</button>
+          <button type="submit" disabled={isLoading} className="loading-button">
+            {isLoading ? "Generating..." : "Generate Trip"}
+          </button>
         </form>
       </div>
     </div>

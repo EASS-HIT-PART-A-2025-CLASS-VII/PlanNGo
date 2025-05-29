@@ -66,6 +66,9 @@ export const getRecommendedShareLink = (tripId) =>
   api.get(`/recommended/${tripId}/shared-link`);
 export const getSharedRecommendedTrip = (uuid) =>
   api.get(`/recommended/shared-recommended-trip/${uuid}`);
+export function cloneAiTripAsRecommended(tripData) {
+  api.post("recommended/clone-ai-trip", tripData);
+}
 
 // ===== TRIPS =====
 export const getMyTrips = ({ page = 1, sortBy = "recent" }) =>

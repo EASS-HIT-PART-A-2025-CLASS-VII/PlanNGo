@@ -52,7 +52,7 @@ export default function TripDetails() {
           <p>📍 {trip.destination}</p>
           <p>📝 {trip.description}</p>
           <p>⏳ {trip.duration_days} days</p>
-          <p>📅 {trip.start_date} - {trip.end_date}</p>
+          {!trip.is_recommended && (<p>📅 {trip.start_date} - {trip.end_date}</p>)}
         </div>
       </div>
 

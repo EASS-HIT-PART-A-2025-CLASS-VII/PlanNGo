@@ -3,27 +3,36 @@
 from fastapi import APIRouter, HTTPException
 from app.schemas import TripRequest, TripResponse, BudgetRequest, BudgetResponse, TripType
 from app import services
+from fastapi.responses import JSONResponse
 
 router = APIRouter(prefix="/trip-ai", tags=["Trip AI Service"])
 
 # AI - יצירת טיול מותאם אישית
 @router.post("/custom-trip", response_model=TripResponse)
-async def create_custom_trip(trip_request: TripRequest):
+def create_custom_trip(trip_request: TripRequest):
     if not trip_request.destination or not trip_request.num_days:
         raise HTTPException(status_code=400, detail="Destination and number of days are required.")
 
-    # תמיד שולחים ל-AI לבנות את הטיול
-    trip_plan, estimated_budget = services.custom_trip_plan(
+    offset = trip_request.offset or 0
+
+    generator = services.custom_trip_plan(
         destination=trip_request.destination,
-        num_days= trip_request.num_days,
+        num_days=trip_request.num_days,
         num_travelers=trip_request.num_travelers,
         trip_type=trip_request.trip_type
     )
 
-    return TripResponse(
-        trip_plan=trip_plan,
-        estimated_budget=estimated_budget
-    )
+    current_index = 0
+    for chunk_days, budget in generator:
+        if current_index == offset:
+            return JSONResponse(content={
+                "trip_plan": chunk_days,
+                "estimated_budget": budget
+            })
+        current_index += 10
+
+    # אם אין יותר צ'אנקים (offset גדול מדי)
+    raise HTTPException(status_code=404, detail="No more chunks available.")
 
 # חישוב תקציב לטיול קיים
 @router.post("/calculate-budget/{trip_id}", response_model=BudgetResponse)

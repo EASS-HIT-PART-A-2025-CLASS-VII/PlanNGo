@@ -6,6 +6,7 @@ class TripRequestAI(BaseModel):
     num_days: int
     num_travelers: int
     trip_type: str
+    offset: Optional[int] = 0  
 
 class AiTripSummaryRequest(BaseModel):
     email: EmailStr

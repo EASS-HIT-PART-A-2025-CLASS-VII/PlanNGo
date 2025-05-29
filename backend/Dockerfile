@@ -11,4 +11,4 @@ RUN pip install google-auth google-auth-oauthlib google-auth-httplib2 google-api
 
 COPY ./app ./app
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

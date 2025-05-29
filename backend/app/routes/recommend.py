@@ -6,6 +6,7 @@ from uuid import UUID
 from typing import List
 from app.db.database import get_db
 from app.models.user_model import User
+from app.schemas.trip_schema import AiTripCloneRequest
 from app.schemas.trip_schema import TripOut, SharedTripOut, TripPaginatedResponse
 from app.models.trip_model import Trip
 from app.services.token_service import get_current_user
@@ -89,3 +90,7 @@ def view_shared_recommended_trip(share_uuid: UUID, db: Session = Depends(get_db)
         raise HTTPException(status_code=404, detail="Shared recommended trip not found")
     return trip
 
+# לטיולים מומלצים AI העברת טיול 
+@router.post("/clone-ai-trip", response_model=TripOut)
+def clone_ai_trip_to_recommended(request: AiTripCloneRequest, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    return recommend_service.import_ai_trip_as_recommended(request, db)

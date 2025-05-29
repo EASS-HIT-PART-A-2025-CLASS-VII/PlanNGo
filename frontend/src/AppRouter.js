@@ -75,6 +75,8 @@ export default function AppRouter() {
             <Route path="profile" element={<Profile />} />
             <Route path="users" element={<UsersManagement />} /> 
             <Route path="trips" element={<Trips />} /> 
+            <Route path="ai" element={<AiTripPlanner />} />
+             <Route path="ai/trip-result" element={<AiTripResult />} />
             <Route path="*" element={<NotFound />} />
           </Route>
         )}

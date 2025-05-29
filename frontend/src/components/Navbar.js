@@ -77,6 +77,12 @@ export default function Navbar({ role }) {
                   <span>Recommended Trips</span>
                 </Link>
               </li>
+              <li>
+                <Link to="/ai" className={`nav-link ${isActive("/ai") ? "active" : ""}`}>
+                  <img src="/icons/ai.png" alt="AI" className="nav-icon" />
+                  <span>AI Trip Planner</span>
+                </Link>
+              </li>
             </>
           )}
         </ul>
