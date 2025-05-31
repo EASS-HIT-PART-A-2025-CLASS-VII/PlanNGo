@@ -3,6 +3,13 @@ import { FaTrash } from "react-icons/fa";
 import { getComments, deleteComment, addComment } from "../services/api";
 import "../css/RecommendedComments.css";
 
+// ניהול תאריך לפי שעון ישראל
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
 export default function RecommendedComments({ tripId, onClose, user }) {
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -14,16 +21,16 @@ export default function RecommendedComments({ tripId, onClose, user }) {
       const res = await getComments(tripId);
       setComments(res.data);
     } catch (err) {
-        if (err.response?.data?.detail) {
-          alert(err.response.data.detail);
-        } else if (err.response?.data) {
-          alert(JSON.stringify(err.response.data));
-        } else if (err.message) {
-          alert(err.message);
-        } else {
-          alert("Something went wrong");
-        }
-      } finally {
+      if (err.response?.data?.detail) {
+        alert(err.response.data.detail);
+      } else if (err.response?.data) {
+        alert(JSON.stringify(err.response.data));
+      } else if (err.message) {
+        alert(err.message);
+      } else {
+        alert("Something went wrong");
+      }
+    } finally {
       setLoading(false);
     }
   };
@@ -33,16 +40,16 @@ export default function RecommendedComments({ tripId, onClose, user }) {
       await deleteComment(commentId);
       setComments((prev) => prev.filter((c) => c.id !== commentId));
     } catch (err) {
-        if (err.response?.data?.detail) {
-          alert(err.response.data.detail);
-        } else if (err.response?.data) {
-          alert(JSON.stringify(err.response.data));
-        } else if (err.message) {
-          alert(err.message);
-        } else {
-          alert("Something went wrong");
-        }
+      if (err.response?.data?.detail) {
+        alert(err.response.data.detail);
+      } else if (err.response?.data) {
+        alert(JSON.stringify(err.response.data));
+      } else if (err.message) {
+        alert(err.message);
+      } else {
+        alert("Something went wrong");
       }
+    }
   };
 
   const handleAdd = async () => {
@@ -52,16 +59,16 @@ export default function RecommendedComments({ tripId, onClose, user }) {
       setNewComment("");
       fetchComments();
     } catch (err) {
-        if (err.response?.data?.detail) {
-          alert(err.response.data.detail);
-        } else if (err.response?.data) {
-          alert(JSON.stringify(err.response.data));
-        } else if (err.message) {
-          alert(err.message);
-        } else {
-          alert("Something went wrong");
-        }
+      if (err.response?.data?.detail) {
+        alert(err.response.data.detail);
+      } else if (err.response?.data) {
+        alert(JSON.stringify(err.response.data));
+      } else if (err.message) {
+        alert(err.message);
+      } else {
+        alert("Something went wrong");
       }
+    }
   };
 
   const handleKeyDown = (e) => {
@@ -110,7 +117,11 @@ export default function RecommendedComments({ tripId, onClose, user }) {
               <li key={comment.id} className="comment-item">
                 <div className="comment-header">
                   <strong>👤 {comment.user_name}</strong>
-                  <span>{new Date(comment.created_at).toLocaleString()}</span>
+                  <span>
+                    {dayjs.utc(comment.created_at)        // התחלה ב־UTC
+                      .tz("Asia/Jerusalem")               // המרה לשעון ישראל
+                      .format("DD/MM/YYYY HH:mm")}
+                  </span>
                   {isLoggedIn && user?.username === comment.user_name && (
                     <button
                       className="delete-comment-btn"

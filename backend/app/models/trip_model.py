@@ -21,7 +21,7 @@ class Trip(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True)  # מזהה המשתמש שיצר את הטיול (רק בטיולים אישיים)
     share_uuid = Column(UUID(as_uuid=True), default=uuid.uuid4, unique=True, nullable=False) # מזהה לשיתוף
     created_at = Column(DateTime(timezone=True), server_default=func.now()) # תאריך יצירת הטיול
-    
+
     users = relationship("User", back_populates="trips") # קשר הפוך למשתמש שיצר את הטיול
     activities = relationship("Activity", back_populates="trips", cascade="all, delete") # קשר הפוך עם פעילויות בטיול
     ratings = relationship("Rating", back_populates="trips", cascade="all, delete") # קשר הפוך עם דירוגים בטיול
