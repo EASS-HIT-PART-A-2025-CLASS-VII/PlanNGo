@@ -36,26 +36,25 @@ export default function AiTripPlanner() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);    
+    setIsLoading(true); 
 
     const request = {
       destination,
       num_days: Number(days),
       num_travelers: Number(travelers),
       trip_type: tripType,
-      offset: 0 
     };
 
     try {
+      console.log("request: ", request)
       const response = await generateCustomTrip(request);
       navigate("/ai/trip-result", {
         state: {
           destination,
-          num_days: Number(days),          
-          num_travelers: Number(travelers), 
+          days,
+          travelers,
           trip_type: tripType,
-          offset: 0,
-          ...response.data,
+          ...response.data, 
         },
       });
     } catch (err) {
@@ -69,7 +68,7 @@ export default function AiTripPlanner() {
         alert("Something went wrong");
       }
     } finally {
-      setIsLoading(false);    
+      setIsLoading(false); 
     }
   };
 
@@ -116,7 +115,11 @@ export default function AiTripPlanner() {
             ))}
           </select>
 
-          <button type="submit" disabled={isLoading} className="loading-button">
+          <button
+            type="submit"
+            className="loading-button"
+            disabled={isLoading}
+          >
             {isLoading ? "Generating..." : "Generate Trip"}
           </button>
         </form>

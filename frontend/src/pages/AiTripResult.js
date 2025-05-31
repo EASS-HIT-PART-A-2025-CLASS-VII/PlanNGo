@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { useState, useEffect, useRef } from "react";
-import { sendAiTripSummary, cloneAiTrip, cloneAiTripAsRecommended, generateCustomTrip } from "../services/api";
+import { useState } from "react";
+import { sendAiTripSummary, cloneAiTrip, cloneAiTripAsRecommended } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import DayCard from "../components/DayCard";
 import "../css/TripCard.css";
@@ -10,89 +10,27 @@ import { FaEnvelope, FaSuitcase } from "react-icons/fa";
 export default function AiTripResult() {
   const location = useLocation();
   const navigate = useNavigate();
-  const baseTrip = location.state;
+  const trip = location.state;
+
+  console.log("trip from location.state:", trip);
+
   const { user } = useAuth();
-
-  const [tripPlan, setTripPlan] = useState([]);
-  const [currentOffset, setCurrentOffset] = useState(0);
-  const [hasMoreChunks, setHasMoreChunks] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [estimatedBudget, setEstimatedBudget] = useState(0);
-  const [firstChunk, setFirstChunk] = useState({ destination: "", days: 0, travelers: 0, trip_type: "" });
-
-  const bottomRef = useRef(null);
 
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [emailInput, setEmailInput] = useState("");
   const [sending, setSending] = useState(false);
-
-  useEffect(() => {
-    if (!baseTrip) return;
-
-    const fetchInitialChunk = async () => {
-      try {
-        const res = await generateCustomTrip({ ...baseTrip, offset: 0 });
-        setTripPlan(res.trip_plan);
-        setEstimatedBudget(res.estimated_budget);
-        setCurrentOffset(10);
-        setHasMoreChunks(res.trip_plan.length === 10);
-
-        setFirstChunk({
-          destination: baseTrip.destination,
-          days: baseTrip.num_days,
-          travelers: baseTrip.num_travelers,
-          trip_type: baseTrip.trip_type,
-        });
-      } catch (err) {
-        alert("Failed to load trip.");
-      }
-    };
-
-    fetchInitialChunk();
-  }, [baseTrip]);
-
-  useEffect(() => {
-    if (!hasMoreChunks || loadingMore) return;
-
-    const observer = new IntersectionObserver(
-      async ([entry]) => {
-        if (entry.isIntersecting) {
-          setLoadingMore(true);
-          try {
-            const res = await generateCustomTrip({ ...baseTrip, offset: currentOffset });
-            setTripPlan((prev) => [...prev, ...res.trip_plan]);
-            setEstimatedBudget((prev) => prev + (res.estimated_budget || 0));
-            setCurrentOffset((prev) => prev + 10);
-            if (res.trip_plan.length < 10) setHasMoreChunks(false);
-          } catch (err) {
-            alert("Failed to load more days");
-          } finally {
-            setLoadingMore(false);
-          }
-        }
-      },
-      { threshold: 1 }
-    );
-
-    const ref = bottomRef.current;
-    if (ref) observer.observe(ref);
-
-    return () => {
-      if (ref) observer.unobserve(ref);
-    };
-  }, [currentOffset, hasMoreChunks, loadingMore]);
 
   const handleSummaryEmail = async (emailToSend) => {
     try {
       setSending(true);
       await sendAiTripSummary({
         email: emailToSend,
-        destination: firstChunk.destination,
-        days: firstChunk.days,
-        travelers: firstChunk.travelers,
-        trip_type: firstChunk.trip_type,
-        estimated_budget: estimatedBudget,
-        trip_plan: tripPlan,
+        destination: trip.destination,
+        days: trip.days,
+        travelers: trip.travelers,
+        trip_type: trip.trip_type,
+        estimated_budget: trip.estimated_budget,
+        trip_plan: trip.trip_plan,
       });
       alert("Summary sent successfully!");
       setShowEmailModal(false);
@@ -114,14 +52,14 @@ export default function AiTripResult() {
 
   const handleClone = async () => {
     try {
+      console.log("Cloning trip:", trip);
       const tripData = {
-        destination: firstChunk.destination,
-        duration_days: parseInt(firstChunk.days, 10),
-        trip_plan: tripPlan,
-        trip_type: firstChunk.trip_type,
-        travelers: parseInt(firstChunk.travelers, 10),
+        destination: trip.destination,
+        duration_days: parseInt(trip.days, 10),
+        trip_plan: trip.trip_plan,
+        trip_type: trip.trip_type,
+        travelers: parseInt(trip.travelers, 10),
       };
-
       if (user?.is_admin) {
         await cloneAiTripAsRecommended(tripData);
         alert("Trip added as a recommended trip!");
@@ -132,11 +70,19 @@ export default function AiTripResult() {
         navigate("/my-trips");
       }
     } catch (err) {
-      alert(err.response?.data?.detail || err.message || "Something went wrong");
-    }
+        if (err.response?.data?.detail) {
+          alert(err.response.data.detail);
+        } else if (err.response?.data) {
+          alert(JSON.stringify(err.response.data));
+        } else if (err.message) {
+          alert(err.message);
+        } else {
+          alert("Something went wrong");
+        }
+      }
   };
 
-  if (!baseTrip) {
+  if (!trip) {
     return (
       <div className="trip-details-header">
         <h2>AI Trip Result</h2>
@@ -150,15 +96,19 @@ export default function AiTripResult() {
     <>
       <div className="trip-details-header">
         <div className="trip-header-top-row">
-          <h2 className="trip-title">Trip to: {firstChunk.destination}</h2>
+          <h2 className="trip-title">Trip to: {trip.destination}</h2>
           <div className="trip-header-actions">
-            <button className="trip-btn icon" title="Send trip summary to email" onClick={handleClick}>
+            <button
+              className="trip-btn icon"
+              title="Send trip summary to email"
+              onClick={handleClick}
+            >
               <FaEnvelope />
             </button>
             {user && (
               <button
                 className="trip-btn icon"
-                title={user.is_admin ? "Add as recommended trip" : "Clone to my trips"}
+                title="Add to My Trips"
                 onClick={handleClone}
               >
                 <FaSuitcase />
@@ -168,21 +118,26 @@ export default function AiTripResult() {
         </div>
 
         <div className="trip-details-icons">
-          <div className="trip-detail-item">⏳ {firstChunk.days} days</div>
-          <div className="trip-detail-item">👥 {firstChunk.travelers} travelers</div>
-          <div className="trip-detail-item">🧳 {firstChunk.trip_type}</div>
-          <div className="trip-detail-item">💸 ${estimatedBudget?.toFixed(2)}</div>
+          <div className="trip-detail-item">
+            <span role="img" aria-label="calendar">🗓️</span> {trip.days} days
+          </div>
+          <div className="trip-detail-item">
+            <span role="img" aria-label="travelers">👥</span> {trip.travelers} travelers
+          </div>
+          <div className="trip-detail-item">
+            <span role="img" aria-label="style">🧳</span> {trip.trip_type}
+          </div>
+          <div className="trip-detail-item">
+            <span role="img" aria-label="budget">💸</span> ${trip.estimated_budget}
+          </div>
         </div>
       </div>
 
       <div className="trip-grid-full">
-        {tripPlan.map((day) => (
+        {trip.trip_plan.map((day) => (
           <DayCard key={day.day} index={day.day - 1} activities={day.activities} />
         ))}
-        <div ref={bottomRef} style={{ height: "1px" }}></div>
       </div>
-
-      {loadingMore && <div className="loading-spinner">Loading more days...</div>}
 
       {showEmailModal && (
         <div className="modal-overlay" onClick={() => setShowEmailModal(false)}>

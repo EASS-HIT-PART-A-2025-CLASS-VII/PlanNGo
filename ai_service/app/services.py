@@ -3,7 +3,7 @@
 import json
 from openai import OpenAI, OpenAIError
 from app.schemas import DayPlan, ActivityItem
-from typing import List, Optional, Tuple, Generator
+from typing import List, Optional, Tuple
 import os
 import requests
 from dotenv import load_dotenv
@@ -14,15 +14,16 @@ import re
 load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
+# AI יצירת טיול
 def custom_trip_plan(
     destination: str,
     num_days: int,
     num_travelers: int,
     trip_type: Optional[str] = None
-) -> Generator[Tuple[List[dict], float], None, None]:
+) -> Tuple[List[dict], float]:
     MAX_DAYS_PER_REQUEST = 10
-
     visited_places = set()
+    all_days = []
 
     for i in range(0, num_days, MAX_DAYS_PER_REQUEST):
         sub_start_day = i + 1
@@ -30,8 +31,8 @@ def custom_trip_plan(
         sub_days = sub_end_day - sub_start_day + 1
 
         prompt = (
-            f"You are a professional travel planner. Create a detailed and realistic {sub_days}-day travel itinerary "
-            f"for {num_travelers} travelers visiting {destination}. "
+            f"You are a professional travel planner. Create a detailed and realistic travel itinerary for **Day {sub_start_day} to Day {sub_end_day}** "
+            f"({sub_days} days in total) for {num_travelers} travelers visiting {destination}. "
         )
 
         if trip_type:
@@ -39,39 +40,38 @@ def custom_trip_plan(
 
         if visited_places:
             visited_text = ", ".join(sorted(visited_places))
-            prompt += f"Avoid repeating the following places already visited in earlier days: {visited_text}. "
-
+            prompt += (
+                f"Avoid repeating the following places already visited in earlier days: {visited_text}. "
+                f"This itinerary is a continuation of a longer trip. Please ensure the new days follow naturally. "
+                f"maintain a logical geographical flow – group nearby locations together and avoid unnecessary backtracking. "
+            )
+        
         prompt += (
-            "Each day must include 5 to 7 activities, scheduled from around 08:00 to 21:00, covering a full day. "
-            "Ensure a natural flow with a mix of sightseeing, culture, nature, relaxation, local cuisine, and transport as needed. "
-            "Group nearby activities together to minimize travel time. Avoid placing far-apart locations back-to-back. "
-            "Every activity must include the following fields:\n"
-            "- time: in HH:MM format (e.g., 08:30)\n"
-            "- title: short, descriptive name of the activity\n"
-            "- description: 1–2 short sentences explaining the activity\n"
-            "- location_name: a specific, realistic place in or near the destination\n\n"
-            "Return the result as a JSON array of days, in the exact structure below:\n"
-            "[\n"
-            "  {\n"
-            "    \"day\": 1,\n"
-            "    \"activities\": [\n"
-            "      {\n"
-            "        \"time\": \"08:30\",\n"
-            "        \"title\": \"Explore the Grand Palace\",\n"
-            "        \"description\": \"Visit the iconic Grand Palace and learn about Thai royal history.\",\n"
-            "        \"location_name\": \"The Grand Palace, Bangkok\"\n"
-            "      },\n"
-            "      ...\n"
-            "    ]\n"
-            "  },\n"
-            "  ...\n"
-            "]\n\n"
+        f"Each day should include at least 5 to 7 activities, covering the full day from morning (~08:00) to evening (~21:00). "
+        "Include a natural mix of experiences: sightseeing, meals, relaxation, nature, culture, local highlights, and transportation if needed. "
+        "Make sure to space out the activities realistically by considering how long it would take to travel between locations. "
+        "Avoid back-to-back activities that are far apart unless they are near each other or within walking distance. "
+        "Each activity must have the following fields:\n"
+        "- time (in HH:MM format)\n"
+        "- title (short activity name)\n"
+        "- description (1–2 sentences explaining the activity)\n"
+        "- location_name (specific and realistic place)\n\n"
+        "Structure the result as a JSON array of days:\n"
+        "[\n"
+        "  {\n"
+        "    \"day\": 1,\n"
+        "    \"activities\": [\n"
+        "      {\n"
+        "        \"time\": \"08:30\",\n"
+        "        \"title\": \"Visit the Museum\",\n"
+        "        \"description\": \"Explore the ancient exhibits of the local culture.\",\n"
+        "        \"location_name\": \"National Museum\"\n"
+        "      }, ...\n"
+        "    ]\n"
+        "  },\n"
+        "  ...\n"
+        "]\n\n"
         )
-
-        if sub_end_day == num_days:
-            prompt += f"On the final day (Day {sub_days}), include packing, hotel check-out, and transfer to the airport.\n"
-
-        prompt += "After the JSON, add one line only: Budget: XXXX (estimated cost in USD for this segment only)."
 
         try:
             response = client.chat.completions.create(
@@ -79,34 +79,48 @@ def custom_trip_plan(
                 messages=[{"role": "user", "content": prompt}],
                 temperature=0.7,
                 max_tokens=4000,
-                timeout=500,
+                timeout=200,
             )
         except OpenAIError as e:
-            raise HTTPException(status_code=500, detail=str(e)) 
+            raise HTTPException(status_code=500, detail=str(e))
 
         full_text = response.choices[0].message.content.strip()
 
-        if "Budget:" in full_text:
-            json_part, budget_part = full_text.rsplit("Budget:", 1)
-            budget_text = budget_part.strip()
-        else:
-            json_part = full_text
-            budget_text = "0"
-
         try:
-            chunk_days = json.loads(json_part)
-            for day in chunk_days:
-                day["day"] += i
+            print(full_text)
+            chunk_days = json.loads(full_text)
+            for index, day in enumerate(chunk_days):
+                day["day"] = i + index + 1
                 for activity in day.get("activities", []):
-                    name = activity.get("location_name", "").strip()
-                    if name:
-                        visited_places.add(name)
+                    loc = activity.get("location_name", "").strip()
+                    if loc:
+                        visited_places.add(loc)
 
-            budget_value = float(budget_text.replace("$", "").replace(",", "").strip())
+            all_days.extend(chunk_days)
         except (json.JSONDecodeError, ValueError) as e:
-            raise HTTPException(status_code=500, detail=f"AI response error on days {sub_start_day}-{sub_end_day}: {str(e)}")
+            raise HTTPException(
+                status_code=500,
+                detail=f"AI response error on days {sub_start_day}-{sub_end_day}: {str(e)}"
+            )
 
-        yield chunk_days, budget_value
+    # חישוב תקציב לפי הטיול המלא
+    day_plans = [
+        DayPlan(
+            day=day["day"],
+            activities=[
+                ActivityItem(
+                    time=act["time"],
+                    title=act["title"],
+                    description=act["description"],
+                    location_name=act["location_name"]
+                ) for act in day.get("activities", [])
+            ]
+        )
+        for day in all_days
+    ]
+    total_budget = calculate_budget_by_ai(destination, num_days, num_travelers, day_plans)
+
+    return all_days, total_budget
 
 # חישוב תקציב טיול
 def calculate_budget_by_ai(destination: str, num_days: int, num_travelers: int, trip_plan: List[DayPlan]) -> float:
@@ -183,4 +197,3 @@ def get_trip_plan_from_backend(trip_id: int):
     ]
 
     return trip_plan
-

@@ -7,15 +7,19 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false); 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true); 
     try {
       const res = await login(email, password);
       localStorage.setItem("token", res.data.access_token);
       window.location.href = "/";
     } catch (err) {
       setError("Invalid email or password.");
+    } finally {
+      setIsLoading(false); 
     }
   };
 
@@ -54,7 +58,13 @@ export default function Login() {
             </Link>
           </div>
 
-          <button type="submit">Login</button>
+          <button
+            type="submit"
+            className="loading-button" 
+            disabled={isLoading}    
+          >
+            {isLoading ? "Logging in..." : "Login"}
+          </button>
 
           <div className="bottom-text">
             <span>Don't have an account? </span>

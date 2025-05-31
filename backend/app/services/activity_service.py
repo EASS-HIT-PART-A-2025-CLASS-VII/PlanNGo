@@ -8,6 +8,10 @@ from app.models.user_model import User
 from app.schemas.activity_schema import ActivityCreate, ActivityUpdate
 from datetime import datetime
 
+# קבלת כל הפעילויות של טיול מסוים
+def get_activities_by_trip(db: Session, trip_id: int):
+    return db.query(Activity).filter(Activity.trip_id == trip_id).all()
+    
 # קבלת כל הפעילויות ביום מסוים בטיול
 def get_activities_by_trip_and_day(db: Session, trip_id: int, day_number: int):
     return db.query(Activity).filter(

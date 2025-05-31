@@ -30,7 +30,6 @@ class TripRequest(BaseModel):
     num_days: int
     num_travelers: int
     trip_type: TripType
-    offset: Optional[int] = 0  
 
 class TripResponse(BaseModel):
     trip_plan: Optional[List[DayPlan]] = None

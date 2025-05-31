@@ -1,0 +1,26 @@
+# קבצים זמניים של פייתון
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# סביבות וירטואליות
+venv/
+env/
+
+# קבצי קונפיג לא רלוונטיים
+*.env
+*.log
+*.sqlite
+*.db
+
+# Node (אם זה פרויקט React או דומה)
+node_modules/
+npm-debug.log
+dist/
+build/
+
+# כלים
+.DS_Store
+.idea/
+.vscode/

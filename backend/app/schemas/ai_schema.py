@@ -6,7 +6,6 @@ class TripRequestAI(BaseModel):
     num_days: int
     num_travelers: int
     trip_type: str
-    offset: Optional[int] = 0  
 
 class AiTripSummaryRequest(BaseModel):
     email: EmailStr
@@ -16,3 +15,10 @@ class AiTripSummaryRequest(BaseModel):
     trip_type: str
     estimated_budget: float
     trip_plan: List[Dict[str, Any]] 
+    
+class BudgetRequest(BaseModel):
+    num_travelers: int
+    
+    
+class BudgetResponse(BaseModel):
+    estimated_budget: float

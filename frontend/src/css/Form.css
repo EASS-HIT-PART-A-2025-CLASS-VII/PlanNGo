@@ -149,23 +149,3 @@ button.loading-button:disabled::after {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
-
-.load-more-container {
-  text-align: center;
-  margin: 2rem 0;
-}
-
-.load-more-btn {
-  padding: 0.6rem 1.2rem;
-  font-size: 1rem;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.load-more-btn:hover {
-  background-color: #0056b3;
-}

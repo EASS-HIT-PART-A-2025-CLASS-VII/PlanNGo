@@ -14,6 +14,11 @@ router = APIRouter(
     tags=["Activities"]
 )
 
+# שליפת כל הפעילויות בטיול
+@router.get("/{trip_id}/activities", response_model=List[ActivityOut])
+def get_activities(trip_id: int, db: Session = Depends(get_db)):
+    return activity_service.get_activities_by_trip(db, trip_id)
+
 # שליפת כל הפעילויות ביום מסוים בטיול
 @router.get("/{trip_id}/activities/day/{day_number}", response_model=List[ActivityOut])
 def get_activities_by_day(trip_id: int, day_number: int, db: Session = Depends(get_db)):

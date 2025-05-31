@@ -85,6 +85,5 @@ def view_shared_trip(share_uuid: UUID, db: Session = Depends(get_db)):
 # לטיולים שלי AI העברת טיול 
 @router.post("/clone-ai-trip", response_model=TripOut)
 def clone_ai_trip_to_my_trips(request: AiTripCloneRequest, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    print("Received trip data:", request)
     return trip_service.import_ai_trip(request, db, current_user)
 

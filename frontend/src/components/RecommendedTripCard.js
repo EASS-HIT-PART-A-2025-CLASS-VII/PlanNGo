@@ -112,7 +112,9 @@ export default function RecommendedTripCard({ trip, onUnfavorited, onUpdated, on
     try {
       setLoadingBudget(true);
       const num = parseInt(travelerCount, 10) || 1;
+      console.log("start calc")
       const res = await calculateTripBudget(trip.id, num);
+      console.log("end calc")
       setBudget(res.data.estimated_budget);
       setShowTravelersModal(false);
     } catch (err) {
