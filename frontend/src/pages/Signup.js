@@ -14,6 +14,7 @@ export default function Signup() {
 
   const navigate = useNavigate();
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -21,6 +22,7 @@ export default function Signup() {
       ...prev,
       [name]: files ? files[0] : value,
     }));
+    setError("");
   };
 
   const uploadToCloudinary = async (file) => {
@@ -38,9 +40,11 @@ export default function Signup() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setIsLoading(true);
 
     if (form.password !== form.confirmPassword) {
       setError("Passwords do not match");
+      setIsLoading(false);
       return;
     }
 
@@ -50,6 +54,7 @@ export default function Signup() {
         imageUrl = await uploadToCloudinary(form.profileImage);
       } catch {
         setError("Image upload failed");
+        setIsLoading(false);
         return;
       }
     }
@@ -64,16 +69,18 @@ export default function Signup() {
       });
       navigate("/login");
     } catch (err) {
-        if (err.response?.data?.detail) {
-          alert(err.response.data.detail);
-        } else if (err.response?.data) {
-          alert(JSON.stringify(err.response.data));
-        } else if (err.message) {
-          alert(err.message);
-        } else {
-          alert("Something went wrong");
-        }
+      if (err.response?.data?.detail) {
+        alert(err.response.data.detail);
+      } else if (err.response?.data) {
+        alert(JSON.stringify(err.response.data));
+      } else if (err.message) {
+        alert(err.message);
+      } else {
+        alert("Something went wrong");
       }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -83,15 +90,50 @@ export default function Signup() {
         {error && <p className="error">{error}</p>}
 
         <form onSubmit={handleSubmit}>
-          <input type="text" name="username" placeholder="Username" value={form.username} onChange={handleChange} required />
-          <input type="email" name="email" placeholder="Email" value={form.email} onChange={handleChange} required />
-          <input type="password" name="password" placeholder="Password" value={form.password} onChange={handleChange} required />
-          <input type="password" name="confirmPassword" placeholder="Confirm Password" value={form.confirmPassword} onChange={handleChange} required />
+          <input
+            type="text"
+            name="username"
+            placeholder="Username"
+            value={form.username}
+            onChange={handleChange}
+            required
+          />
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            value={form.email}
+            onChange={handleChange}
+            required
+          />
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            value={form.password}
+            onChange={handleChange}
+            required
+          />
+          <input
+            type="password"
+            name="confirmPassword"
+            placeholder="Confirm Password"
+            value={form.confirmPassword}
+            onChange={handleChange}
+            required
+          />
 
           <label>Profile Image (optional)</label>
-          <input type="file" name="profileImage" accept="image/*" onChange={handleChange} />
+          <input
+            type="file"
+            name="profileImage"
+            accept="image/*"
+            onChange={handleChange}
+          />
 
-          <button type="submit">Sign Up</button>
+          <button type="submit" className="loading-button" disabled={isLoading}>
+            {isLoading ? "Signing up..." : "Sign Up"}
+          </button>
         </form>
       </div>
     </div>
