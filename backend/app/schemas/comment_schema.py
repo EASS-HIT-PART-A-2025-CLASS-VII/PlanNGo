@@ -1,6 +1,6 @@
 # בדיקה ושליטה על אילו שדות נכנסים ויוצאים בתגובה לטיול מומלץ
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from datetime import datetime
 
 # מה שהמשתמש שולח כדי להוסיף תגובה
@@ -15,5 +15,4 @@ class CommentResponse(BaseModel):
     user_name: str
     trip_id: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

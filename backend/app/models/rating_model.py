@@ -4,7 +4,7 @@ from sqlalchemy import Column, Integer, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relationship
 from app.db.database import Base
 from sqlalchemy import DateTime
-from datetime import datetime
+from datetime import datetime, timezone
 
 class Rating(Base):
     __tablename__ = "ratings"
@@ -13,7 +13,7 @@ class Rating(Base):
     trip_id = Column(Integer, ForeignKey("trips.id", ondelete="CASCADE")) # מזהה הטיול שאליו שייך הדירוג
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE")) # מזהה המשתמש שיצר את הדירוג
     rating = Column(Integer, nullable=False) # דירוג (בין 1 ל-5)
-    created_at = Column(DateTime, default=datetime.utcnow) # תאריך יצירת הדירוג
+    created_at = Column(DateTime, default=datetime.now(timezone.utc)) # תאריך יצירת הדירוג
 
     trips = relationship("Trip", back_populates="ratings") # קשר הפוך עם הטיול שאליו שייך הדירוג
     users = relationship("User", back_populates="ratings") # קשר עם המשתמש שיצר את הדירוג

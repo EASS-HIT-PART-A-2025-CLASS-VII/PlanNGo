@@ -12,7 +12,7 @@ from app.schemas.rating_schema import RateTripRequest
 from app.schemas.trip_schema import AiTripCloneRequest
 from app.models.comment_model import Comment
 from app.schemas.comment_schema import CommentCreate, CommentResponse
-from datetime import datetime
+from datetime import datetime, timezone
 from app.models.activity_model import Activity
 
 DEFAULT_TRIP_IMAGE = "http://localhost:8000/static/default-trip.png"
@@ -219,7 +219,7 @@ def import_ai_trip_as_recommended(data: AiTripCloneRequest, db: Session):
         end_date=None,
         image_url=DEFAULT_TRIP_IMAGE,
         is_recommended=True,
-        created_at=datetime.utcnow()
+        created_at=datetime.now(timezone.utc)
     )
 
     db.add(new_trip)

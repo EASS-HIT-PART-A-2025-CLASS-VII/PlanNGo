@@ -1,6 +1,7 @@
 # קובץ הפעלה ראשי של האתר
 # FastAPI קובץ זה אחראי על הפעלת השרת ומגדיר את 
 
+import os
 from fastapi import FastAPI
 from app.db.database import Base, engine
 from fastapi.staticfiles import StaticFiles
@@ -22,9 +23,6 @@ from app.models.rating_model import Rating
 from app.models.comment_model import Comment
 
 app = FastAPI()
-
-# DB יצירת הטבלאות ב 
-Base.metadata.create_all(bind=engine)
 
 # auth מחבר את הנתיבים שתחת 
 app.include_router(auth.router, prefix="/api")
@@ -55,7 +53,11 @@ app.include_router(ai.router, prefix="/api")
 
 start_reminder_scheduler()
 
-app.mount("/static", StaticFiles(directory="app/static"), name="static")
+# יצירת תיקיית static אם לא קיימת
+static_dir = os.path.join(os.path.dirname(__file__), "static")
+if not os.path.exists(static_dir):
+    os.makedirs(static_dir)
+app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 @app.get("/")
 def root():

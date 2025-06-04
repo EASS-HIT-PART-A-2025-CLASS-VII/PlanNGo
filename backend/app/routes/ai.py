@@ -8,7 +8,7 @@ router = APIRouter(prefix="/ai", tags=["AI Services"])
 
 @router.post("/custom-trip")
 async def create_custom_trip_via_ai(trip_request: TripRequestAI):
-    result = ai_service.create_custom_trip_ai(trip_request.dict())
+    result = ai_service.create_custom_trip_ai(trip_request.model_dump())
     return result
 
 @router.post("/calculate-budget/{trip_id}")

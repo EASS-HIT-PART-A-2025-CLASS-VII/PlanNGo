@@ -25,6 +25,9 @@ def custom_trip_plan(
     visited_places = set()
     all_days = []
 
+    if not destination.strip() or num_days < 1 or num_travelers < 1:
+        raise HTTPException(status_code=400, detail="Invalid input data for trip planning.")
+
     for i in range(0, num_days, MAX_DAYS_PER_REQUEST):
         sub_start_day = i + 1
         sub_end_day = min(i + MAX_DAYS_PER_REQUEST, num_days)

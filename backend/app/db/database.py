@@ -1,14 +1,27 @@
-# PostgreSQL יוצר חיבור למסד הנתונים 
-
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import declarative_base, sessionmaker
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
 
-# DB ל session פונקציה שמחזירה 
+Base = declarative_base()
+
+# בדיקות - משתמש ב־SQLite בזיכרון
+if os.getenv("TESTING") == "1":
+    from sqlalchemy.pool import StaticPool
+    SQLALCHEMY_DATABASE_URL = "sqlite://"
+    engine = create_engine(
+        SQLALCHEMY_DATABASE_URL,
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
+    )
+else:
+    SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL")
+    engine = create_engine(SQLALCHEMY_DATABASE_URL)
+
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
 def get_db():
     db = SessionLocal()
     try:
@@ -16,14 +29,5 @@ def get_db():
     finally:
         db.close()
 
-# DB להתחבר ל FastAPI כתובת שמאפשרת ל
-SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL")
-
-# DB יצירת החיבור ל 
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
-
-# route בכל DB דרכו נוכל לדבר עם ה session יצירת 
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-# ממנו יירשו כל המודלים base class
-Base = declarative_base()
+def create_all_tables():
+    Base.metadata.create_all(bind=engine)

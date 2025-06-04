@@ -72,16 +72,16 @@ def recommend_trip(trip_id: int, db: Session, current_user: User):
 
 # יצירת טיול מומלץ
 def admin_create_recommended_trip(trip_data: TripCreate, db: Session):
-    data = trip_data.dict()
+    data = trip_data.model_dump()
     duration = data.get("duration_days")
 
     if duration is None:
         raise HTTPException(status_code=400, detail="Trip duration days is required.")
-    if "title" in trip_data and not str(trip_data["title"]).strip():
+    if not trip_data.title or not trip_data.title.strip():
         raise HTTPException(status_code=400, detail="Trip title is required.")
-    if "destination" in trip_data and not str(trip_data["destination"]).strip():
+    if not trip_data.destination or not trip_data.destination.strip():
         raise HTTPException(status_code=400, detail="Trip destination is required.")
-    
+
     if not data.get("image_url"):
         data["image_url"] = DEFAULT_TRIP_IMAGE
         

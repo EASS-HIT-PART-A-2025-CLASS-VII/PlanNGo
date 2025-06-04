@@ -1,6 +1,6 @@
 # בדיקה ושליטה על אילו שדות נכנסים ויוצאים בהוספת ועריכת טיול
 
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, ConfigDict
 from typing import Optional, List, Dict, Any
 from datetime import date, datetime
 from .activity_schema import ActivityOut
@@ -30,9 +30,7 @@ class TripOut(BaseModel):
     average_rating: Optional[float] = None
     created_at: datetime
    
-   # SQLAlchemy לעבוד עם אובייקטים של  pydantic מאפשרת ל 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
         
 # לעריכת טיול 
 class TripUpdate(BaseModel):
@@ -45,9 +43,7 @@ class TripUpdate(BaseModel):
     end_date: Optional[date] = None
     image_url: Optional[str] = None
 
-    # SQLAlchemy לעבוד עם אובייקטים של  pydantic מאפשרת ל 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # מה שהמשתמש שולח בבקשה לשליחת מייל עם סיכום טיול מומלץ
 class SendSummaryRequest(BaseModel):
@@ -65,8 +61,7 @@ class SharedTripOut(BaseModel):
     image_url: Optional[str]
     activities: List[ActivityOut] = []
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class TripPaginatedResponse(BaseModel):
     total: int

@@ -6,7 +6,7 @@ from app.models.user_model import User
 from app.schemas.user_schema import UserCreate
 from app.schemas.user_schema import UserLogin
 from fastapi import HTTPException, status
-import datetime
+from datetime import datetime, timezone, timedelta
 from jose import jwt, JWTError
 from app.services.token_service import SECRET_KEY, ALGORITHM
 from app.services.email_service import send_reset_email
@@ -86,7 +86,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 # פונקציה ליצירת טוקן איפוס סיסמה
 def create_reset_token(user_id: int, expires_minutes: int = 15):
-    expire = datetime.datetime.utcnow() + datetime.timedelta(minutes=expires_minutes)
+    expire = datetime.now(timezone.utc) + timedelta(minutes=expires_minutes)
     to_encode = {"sub": str(user_id), "exp": expire}
     reset_token = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return reset_token

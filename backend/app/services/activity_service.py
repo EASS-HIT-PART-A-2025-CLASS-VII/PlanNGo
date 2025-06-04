@@ -89,7 +89,7 @@ def update_activity(db: Session, activity_id: int, updated_data: ActivityUpdate,
     if not db_activity.location_name or not db_activity.location_name.strip():
         raise HTTPException(status_code=400, detail="Activity location is required")
     
-    updated_fields = updated_data.dict(exclude_unset=True)
+    updated_fields = updated_data.model_dump(exclude_unset=True)
 
     for key, value in updated_fields.items():
         setattr(db_activity, key, value)

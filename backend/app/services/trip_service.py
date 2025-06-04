@@ -6,8 +6,7 @@ from fastapi import HTTPException
 from app.schemas.trip_schema import TripCreate
 from app.schemas.trip_schema import AiTripCloneRequest
 from app.models.user_model import User
-from datetime import date, timedelta, datetime
-from typing import List
+from datetime import date, timedelta, datetime, timezone
 from app.models.trip_model import Trip
 from app.models.activity_model import Activity
 
@@ -82,8 +81,7 @@ def handle_search_trips(
 
 # יצירת טיול
 def create_trip(trip_data: TripCreate, db: Session, current_user: User):
-    data = trip_data.dict()
-
+    data = trip_data.model_dump()
     title = data.get("title", "").strip()
     destination = data.get("destination", "").strip()
     start = data.get("start_date")
@@ -307,7 +305,7 @@ def import_ai_trip(data: AiTripCloneRequest, db: Session, current_user: User):
         end_date=None,
         image_url=DEFAULT_TRIP_IMAGE,
         is_recommended=False,
-        created_at=datetime.utcnow()
+        created_at=datetime.now(timezone.utc)
     )
     db.add(new_trip)
     db.commit()

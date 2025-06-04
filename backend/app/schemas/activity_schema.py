@@ -1,6 +1,6 @@
 # בדיקה ושליטה על אילו שדות נכנסים ויוצאים בהוספה ועריכת פעילות
 
-from pydantic import BaseModel
+from pydantic import BaseModel,ConfigDict
 from typing import Optional
 from datetime import time as dtime
 
@@ -15,11 +15,8 @@ class ActivityCreate(BaseModel):
 # מה שנחזיר בתגובה
 class ActivityOut(ActivityCreate):
     id: int
-
-   # SQLAlchemy לעבוד עם אובייקטים של  pydantic מאפשרת ל 
-    class Config:
-        from_attributes = True
-
+    model_config = ConfigDict(from_attributes=True)
+        
 # מה שהמשתמש שולח בעדכון פעילות
 class ActivityUpdate(BaseModel):
     day_number: Optional[int] = None

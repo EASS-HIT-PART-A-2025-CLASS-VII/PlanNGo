@@ -2,8 +2,14 @@
 from fastapi import HTTPException, status
 import requests
 from app.schemas.ai_schema import BudgetResponse
+import os
 
-TRIP_AI_SERVICE_URL = "http://ai-service:8000"
+# בזמן בדיקות – נשתמש בשירות המקומי
+if os.getenv("TESTING") == "1":
+    TRIP_AI_SERVICE_URL = "http://localhost:8001"
+else:
+    TRIP_AI_SERVICE_URL = os.getenv("TRIP_AI_SERVICE_URL", "http://ai-service:8000")
+
 
 def create_custom_trip_ai(trip_data: dict):
     required_fields = ["destination", "num_days", "num_travelers", "trip_type"]

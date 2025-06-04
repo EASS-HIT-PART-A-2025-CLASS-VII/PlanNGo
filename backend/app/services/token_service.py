@@ -1,7 +1,7 @@
 # לאחר התחברות מוצלחת משמש ליצירת טוקן התחברות חתום
 
 from jose import JWTError, jwt
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import os
 from dotenv import load_dotenv
 from fastapi import Depends, HTTPException, status
@@ -31,7 +31,7 @@ def get_db():
 # העברת מידע בין לקוח לשרת בצורה בטוחה JWT = JSON Web Token
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()
-    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
+    expire = datetime.now(timezone.utc) + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt

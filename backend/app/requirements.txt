@@ -8,8 +8,11 @@ python-dotenv
 pydantic[email]
 bcrypt
 python-jose[cryptography]
-python-dotenv
 apscheduler
 pytz
-
-
+pytest
+httpx
+pytest-asyncio
+google-auth
+google-auth-oauthlib
+google-api-python-client

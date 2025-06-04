@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from fastapi import HTTPException
@@ -27,7 +27,7 @@ def toggle_favorite_trip(user: User, trip_id: int, db: Session):
     if not trip or trip.is_recommended:
         raise HTTPException(status_code=404, detail="Trip not found")
 
-    new_favorite = FavoriteTrip(user_id=user.id, trip_id=trip_id, created_at=datetime.utcnow())
+    new_favorite = FavoriteTrip(user_id=user.id, trip_id=trip_id, created_at=datetime.now(timezone.utc))
     db.add(new_favorite)
     db.commit()
     db.refresh(new_favorite)

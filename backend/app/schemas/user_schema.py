@@ -1,6 +1,6 @@
 # בדיק ושליטה על אילו שדות נכנסים ויוצאים ברישום והתחברות משתמש
 
-from pydantic import BaseModel, EmailStr, Field, model_validator, HttpUrl
+from pydantic import BaseModel, EmailStr, Field, model_validator, HttpUrl, ConfigDict
 from typing import Optional
 
 # מה שהמשתמש שולח בהרשמה
@@ -26,9 +26,7 @@ class UserOut(BaseModel):
     is_admin: bool
     profile_image_url: Optional[str] = None 
 
-    # SQLAlchemy לעבוד עם אובייקטים של  pydantic מאפשרת ל 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # מה שהמשתמש שולח בהתחברות
 class UserLogin(BaseModel):
@@ -40,9 +38,7 @@ class TokenOut(BaseModel):
     access_token: str
     token_type: str
 
-    # SQLAlchemy לעבוד עם אובייקטים של  pydantic מאפשרת ל 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # מה שהמשתמש שולח כדי לאפס סיסמה
 class ForgotPasswordRequest(BaseModel):

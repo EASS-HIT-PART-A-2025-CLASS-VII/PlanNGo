@@ -2,8 +2,7 @@
 
 from sqlalchemy import Column, Integer, ForeignKey, DateTime, Text
 from sqlalchemy.orm import relationship
-from datetime import timezone
-from datetime import datetime
+from datetime import datetime, timezone
 from app.db.database import Base
 
 class Comment(Base):
