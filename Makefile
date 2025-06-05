@@ -8,11 +8,11 @@ test-backend:
 
 # הרצת בדיקות אינטגרציה בק
 integration-test:
-	cd backend && pip install -r app/requirements.txt && TESTING=1 pytest integration_tests/integration_test.py
+	cd backend && pip install -r app/requirements.txt && TESTING=1 pytest integration_tests/integration_test.py -v
 
 # הרצת בדיקות פרונט
 test-frontend:
-	cd frontend && npm install && npm test
+	cd frontend && npm install && npm test -- --watchAll=false
 	
 # הרמת דוקר ובנייתו
 up:

@@ -73,7 +73,7 @@ def test_rate_existing_trip_updates(db):
     db.add(Rating(rating=3, user_id=user.id, trip_id=trip.id))
     db.commit()
     response = recommend_service.rate_trip(trip.id, RateTripRequest(rating=5), user, db)
-    assert "Rating updated successfully" in response["message"]
+    assert "Rating submitted successfully" in response["message"]
 
 # ניסיון לדרג טיול לא מומלץ
 def test_rate_trip_invalid(db):
