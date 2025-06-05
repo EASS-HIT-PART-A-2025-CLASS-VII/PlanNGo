@@ -11,11 +11,7 @@ export default function AiTripResult() {
   const location = useLocation();
   const navigate = useNavigate();
   const trip = location.state;
-
-  console.log("trip from location.state:", trip);
-
   const { user } = useAuth();
-
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [emailInput, setEmailInput] = useState("");
   const [sending, setSending] = useState(false);
@@ -52,7 +48,6 @@ export default function AiTripResult() {
 
   const handleClone = async () => {
     try {
-      console.log("Cloning trip:", trip);
       const tripData = {
         destination: trip.destination,
         duration_days: parseInt(trip.days, 10),

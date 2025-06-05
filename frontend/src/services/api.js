@@ -54,8 +54,10 @@ export const searchRecommendedTrips = ({ query, page = 1, sortBy = "recent" }) =
     `/recommended/search?title=${encoded}&description=${encoded}&destination=${encoded}&creator_name=${encoded}&page=${page}&sort_by=${sortBy}`
   );
 };
-export const rateTrip = (tripId, rating) =>
-  api.post(`/recommended/${tripId}/rate`, { rating });
+export const rateTrip = async (tripId, rating) => {
+  const res = await api.post(`/recommended/${tripId}/rate`, { rating });
+  return res.data;
+};
 export const addComment = (tripId, comment) =>
   api.post(`/recommended/${tripId}/comments`, { content: comment });
 export const getComments = (tripId) =>

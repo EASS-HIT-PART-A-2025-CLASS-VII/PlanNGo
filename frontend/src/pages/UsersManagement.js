@@ -56,7 +56,7 @@ export default function UsersManagement() {
             <tr>
               <th>Email</th>
               <th>Username</th>
-              <th></th> {/* עמודת אייקונים */}
+              <th></th>
             </tr>
           </thead>
           <tbody>

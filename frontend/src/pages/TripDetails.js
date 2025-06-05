@@ -3,7 +3,6 @@ import { useParams } from "react-router-dom";
 import { getTripById } from "../services/api";
 import DayCard from "../components/DayCard";
 import { useAuth } from "../context/AuthContext";
-import { FaPlus } from "react-icons/fa";
 import "../css/TripDetails.css";
 
 export default function TripDetails() {

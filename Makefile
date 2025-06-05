@@ -12,8 +12,8 @@ integration-test:
 
 # הרצת בדיקות פרונט
 test-frontend:
-	cd frontend && npm test
-
+	cd frontend && npm install && npm test
+	
 # הרמת דוקר ובנייתו
 up:
 	docker compose up --build

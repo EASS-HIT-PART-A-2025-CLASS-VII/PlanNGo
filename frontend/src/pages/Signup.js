@@ -123,8 +123,10 @@ export default function Signup() {
             required
           />
 
-          <label>Profile Image (optional)</label>
+          <label htmlFor="profile-upload">Profile Image (optional)</label>
           <input
+            id="profile-upload"
+            data-testid="profile-upload"
             type="file"
             name="profileImage"
             accept="image/*"

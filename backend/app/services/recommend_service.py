@@ -113,24 +113,26 @@ def rate_trip(trip_id: int, rating_data: RateTripRequest, current_user: User, db
     ).first()
 
     if existing_rating:
-        # ✅ מעדכנים את הדירוג במקום לזרוק שגיאה
         existing_rating.rating = rating_data.rating
         db.commit()
         db.refresh(existing_rating)
-        return {"message": "Rating updated successfully"}
+    else:
+        new_rating = Rating(
+            rating=rating_data.rating,
+            user_id=current_user.id,
+            trip_id=trip_id
+        )
+        db.add(new_rating)
+        db.commit()
+        db.refresh(new_rating)
 
-    # ✅ דירוג חדש
-    new_rating = Rating(
-        rating=rating_data.rating,
-        user_id=current_user.id,
-        trip_id=trip_id
-    )
+    # עדכון הדירוג הממוצע לפני ההחזרה
+    enrich_with_average_rating([trip], db)
 
-    db.add(new_rating)
-    db.commit()
-    db.refresh(new_rating)
-
-    return {"message": "Rating submitted successfully"}
+    return {
+        "message": "Rating submitted successfully",
+        "average_rating": trip.average_rating 
+    }
 
 # הוספת שדה דירוג ממוצע לכל טיול ברשימה
 def enrich_with_average_rating(trips, db):

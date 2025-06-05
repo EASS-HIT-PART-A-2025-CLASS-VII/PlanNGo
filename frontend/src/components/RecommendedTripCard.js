@@ -25,7 +25,7 @@ import {
   isRecommendedFavorite,
   updateRecommendedTrip,
   deleteRecommendedTrip,
-  createRecommendedTrip
+  createRecommendedTrip,
 } from "../services/api";
 import RecommendedComments from "./RecommendedComments";
 import "../css/TripCard.css";
@@ -112,9 +112,7 @@ export default function RecommendedTripCard({ trip, onUnfavorited, onUpdated, on
     try {
       setLoadingBudget(true);
       const num = parseInt(travelerCount, 10) || 1;
-      console.log("start calc")
       const res = await calculateTripBudget(trip.id, num);
-      console.log("end calc")
       setBudget(res.data.estimated_budget);
       setShowTravelersModal(false);
     } catch (err) {
@@ -159,19 +157,21 @@ export default function RecommendedTripCard({ trip, onUnfavorited, onUpdated, on
     }
 
     try {
-      await rateTrip(trip.id, value);
-      window.location.reload();
+      const res = await rateTrip(trip.id, value); 
+      setAverageRating(res.average_rating);      
+      setShowRateModal(false);
+      alert("Thanks for rating!");
     } catch (err) {
-        if (err.response?.data?.detail) {
-          alert(err.response.data.detail);
-        } else if (err.response?.data) {
-          alert(JSON.stringify(err.response.data));
-        } else if (err.message) {
-          alert(err.message);
-        } else {
-          alert("Something went wrong");
-        }
+      if (err.response?.data?.detail) {
+        alert(err.response.data.detail);
+      } else if (err.response?.data) {
+        alert(JSON.stringify(err.response.data));
+      } else if (err.message) {
+        alert(err.message);
+      } else {
+        alert("Something went wrong");
       }
+    }
   };
 
   const handleClone = async (e) => {
@@ -321,7 +321,7 @@ export default function RecommendedTripCard({ trip, onUnfavorited, onUpdated, on
               <FaStar /> {averageRating != null ? averageRating.toFixed(1) : "-"}
             </div>
             {isLoggedIn && (
-              <span className="rate-now-link" onClick={(e) => { e.stopPropagation(); setShowRateModal(true); }}>
+              <span className="rate-now-link" onClick={(e) => { e.stopPropagation(); setShowRateModal(true); setRatingInput("");}}>
                 Rate the trip
               </span>
             )}
@@ -362,7 +362,7 @@ export default function RecommendedTripCard({ trip, onUnfavorited, onUpdated, on
           {isAdmin && (
             isEditing ? (
               <>
-                <button className="trip-btn icon" onClick={handleEditSave}><FaCheck /></button>
+                <button className="trip-btn icon" onClick={handleEditSave} title="Save"><FaCheck /></button>
                 <button className="trip-btn icon" onClick={handleEditCancel}><FaTimes /></button>
               </>
             ) : (
@@ -377,8 +377,8 @@ export default function RecommendedTripCard({ trip, onUnfavorited, onUpdated, on
                 >
                   <FaRegCommentDots />
                 </button>
-                <button className="trip-btn icon" onClick={handleEditToggle}><FaEdit /></button>
-                <button className="trip-btn icon" onClick={handleDelete}><FaTrash /></button>
+                <button className="trip-btn icon" onClick={handleEditToggle} title="Edit Trip"><FaEdit /></button>
+                <button className="trip-btn icon" onClick={handleDelete} title="Delete Trip"><FaTrash /></button>
               </>
             )
           )}
@@ -513,7 +513,7 @@ export default function RecommendedTripCard({ trip, onUnfavorited, onUpdated, on
       {showCommentsModal && (
         <RecommendedComments
           tripId={trip.id}
-          user={isAdmin ? null : user} 
+          user={user} 
           onClose={() => setShowCommentsModal(false)}
         />
       )}

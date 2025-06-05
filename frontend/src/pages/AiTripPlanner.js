@@ -46,7 +46,6 @@ export default function AiTripPlanner() {
     };
 
     try {
-      console.log("request: ", request)
       const response = await generateCustomTrip(request);
       navigate("/ai/trip-result", {
         state: {
@@ -77,32 +76,36 @@ export default function AiTripPlanner() {
       <div className="auth-container">
         <h2>Plan Your Trip with AI</h2>
         <form onSubmit={handleSubmit}>
-          <label>Destination</label>
+          <label htmlFor="destination">Destination</label>
           <input
+            id="destination"
             type="text"
             value={destination}
             onChange={(e) => setDestination(e.target.value)}
             required
           />
 
-          <label>Number of Days</label>
+          <label htmlFor="num_days">Number of Days</label>
           <input
+            id="num_days"
             type="number"
             value={days}
             onChange={(e) => setDays(e.target.value)}
             required
           />
 
-          <label>Number of Travelers</label>
+          <label htmlFor="num_travelers">Number of Travelers</label>
           <input
+            id="num_travelers"
             type="number"
             value={travelers}
             onChange={(e) => setTravelers(e.target.value)}
             required
           />
 
-          <label>Trip Style</label>
+          <label htmlFor="trip_type">Trip Style</label>
           <select
+            id="trip_type"
             value={tripType}
             onChange={(e) => setTripType(e.target.value)}
             required

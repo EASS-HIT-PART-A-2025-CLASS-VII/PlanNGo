@@ -31,6 +31,7 @@ export default function DayCard({ index, tripId, activities: propActivities, can
     });
   };
 
+
   useEffect(() => {
     if (useProp) {
       setActivities(sortByTime(propActivities));
@@ -158,7 +159,11 @@ export default function DayCard({ index, tripId, activities: propActivities, can
       <div className="day-card-header">
         <h3 className="day-title">Day {index + 1}</h3>
         {canUserEdit && (
-          <button className="day-add-btn" onClick={handleAddActivity}>
+          <button
+            className="day-add-btn"
+            onClick={handleAddActivity}
+            aria-label="Add Activity"
+          >
             <FaPlus />
           </button>
         )}
@@ -242,8 +247,8 @@ export default function DayCard({ index, tripId, activities: propActivities, can
                   <div className="activity-location">{act.location_name}</div>
                   {canUserEdit && (
                     <div className="activity-actions">
-                      <FaEdit className="activity-btn" onClick={() => startEdit(act)} title="Edit" />
-                      <FaTrash className="activity-btn" onClick={() => handleDeleteActivity(act.id)} title="Delete" />
+                      <FaEdit className="activity-btn" onClick={() => startEdit(act)} title="Edit" aria-label="Edit Activity"/>
+                      <FaTrash className="activity-btn" onClick={() => handleDeleteActivity(act.id)} title="Delete" aria-label="Delete Activity"/>
                     </div>
                   )}
                 </>

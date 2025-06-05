@@ -118,20 +118,23 @@ export default function RecommendedComments({ tripId, onClose, user }) {
                 <div className="comment-header">
                   <strong>👤 {comment.user_name}</strong>
                   <span>
-                    {dayjs.utc(comment.created_at)        // התחלה ב־UTC
-                      .tz("Asia/Jerusalem")               // המרה לשעון ישראל
+                    {dayjs.utc(comment.created_at) 
+                      .tz("Asia/Jerusalem") 
                       .format("DD/MM/YYYY HH:mm")}
                   </span>
-                  {isLoggedIn && user?.username === comment.user_name && (
+                  {(isLoggedIn && (user?.username === comment.user_name || user?.is_admin)) && (
                     <button
                       className="delete-comment-btn"
                       onClick={() => handleDelete(comment.id)}
+                      aria-label={`Delete comment ${comment.id}`}
                     >
                       <FaTrash />
                     </button>
                   )}
                 </div>
-                <p className="comment-content">{comment.content}</p>
+                <p className="comment-content" data-testid={`comment-content-${comment.id}`}>
+                  {comment.content}
+                </p>
               </li>
             ))}
           </ul>
