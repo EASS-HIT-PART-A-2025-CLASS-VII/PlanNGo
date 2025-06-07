@@ -102,7 +102,7 @@ plan_n_go/
 
 ---
 
-🏗️ Microservices Architecture
+## 🏗️ Microservices Architecture
 
 ![Microservices Architecture](backend/app/static/Architecture.png)
 
