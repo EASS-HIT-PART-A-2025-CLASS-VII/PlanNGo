@@ -1,6 +1,5 @@
 # **🧭** PlanNGo - Smart Trip Management System
 
----
 
 ## 📖 Overview
 
@@ -254,11 +253,11 @@ make up
 
 This will start:
 
-✅ Frontend (React) - [http://localhost:3000](http://localhost:3000)
+✅ AI Service - [http://localhost:8001](http://localhost:8001)
 
 ✅ Backend (FastAPI) - [http://localhost:8000](http://localhost:8000)
 
-✅ AI Service - [http://localhost:8001](http://localhost:8001)
+✅ Frontend (React) - [http://localhost:3000](http://localhost:3000)
 
 ---
 
@@ -309,6 +308,9 @@ PlanNGo offers comprehensive API documentation through Swagger UI:
 * Authentication flow demonstration
 * Model validation details
 
+---
+
+
 ## 🙌 Conclusion
 
 PlanNGo simplifies the complexity of trip planning with smart tools, personalized recommendations, and collaborative features. Whether you're a casual traveler or a frequent explorer, PlanNGo provides a streamlined, intelligent platform to design your perfect adventure.
@@ -317,4 +319,4 @@ Feel free to contribute, report issues, or suggest enhancements.
 
 **Lian Cohen**
 
-**Email**\*\*:Liancohen0104\*\*\*\*@gmail.com\*\*
+**Email:Liancohen0104@gmail.com**
