@@ -9,6 +9,8 @@
 
 ### 🎥 Demo Video
 
+[![Watch the demo](https://img.youtube.com/vi/u7EvDRWHW2U/0.jpg)](https://youtu.be/hd9tCDCIjXE)
+
 ---
 
 ## **✨** Key Features
@@ -241,7 +243,7 @@ To enable calendar sync, you'll need to create your own `client_secret.json` fil
      http://localhost:8000/api/calendar/callback
      ```
 6. Download the JSON file
-7. Rename it to `client_secret.json`
+7. Rename it to `client-secret.json`
 8. Place it under:
 
    ```
