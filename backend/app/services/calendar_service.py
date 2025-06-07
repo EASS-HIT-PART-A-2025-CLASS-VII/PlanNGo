@@ -12,7 +12,6 @@ from google.oauth2.credentials import Credentials
 # זיכרון זמני לשמירת טוקנים של משתמשים
 user_tokens = {}
 
-# מאפשר התחברות דרך HTTP בזמן פיתוח
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
 CLIENT_SECRETS_FILE = "app/client_secret.json"
