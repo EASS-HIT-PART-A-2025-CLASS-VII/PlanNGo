@@ -52,53 +52,59 @@
 
 ```
 plan_n_go/
-├── ai_service/            # AI microservice for trip generation
+├── ai_service/                         # AI microservice for trip generation
 │   ├── app/
-│   │   ├── main.py            # Entry point for the AI service
-│   │   ├── routes.py          # FastAPI routes for AI endpoints
-│   │   ├── schemas.py         # Pydantic models for request/response
-│   │   ├── services.py        # Core OpenAI interaction logic
-│   │   └── requirements.txt   # Dependencies for the AI service
-│   ├── unit_tests/            # Unit tests for AI logic
-│   └── Dockerfile             # Docker config for the AI service
+│   │   ├── main.py                     # Entry point for the AI service
+│   │   ├── routes.py                   # FastAPI routes for AI endpoints
+│   │   ├── schemas.py                  # Pydantic models for request/response
+│   │   ├── services.py                 # Core OpenAI interaction logic
+│   │   └── requirements.txt            # Dependencies for the AI service
+│   ├── unit_tests/                     # Unit tests for AI logic
+│   └── Dockerfile                      # Docker config for the AI service
 │
-├── backend/               # FastAPI backend application
+├── backend/                            # FastAPI backend application
 │   ├── app/
-│   │   ├── main.py            # FastAPI application entry point
-│   │   ├── db/                # Database connection and session config
-│   │   ├── models/            # SQLAlchemy models (User, Trip, Comment, etc.)
-│   │   ├── routes/            # API route definitions
-│   │   ├── schemas/           # Pydantic request/response schemas
-│   │   ├── services/          # Core service logic
-│   │   ├── static/            # Static files (if applicable)
-│   │   ├── client-secret.json # OAuth2 credentials (ignored in .gitignore)
-│   │   └── requirements.txt   # Backend dependencies
-│   ├── integration_tests/     # End-to-end API tests
-│   ├── unit_tests/            # Unit tests for backend services
-│   └── Dockerfile             # Docker config for backend
+│   │   ├── main.py                     # FastAPI application entry point
+│   │   ├── db/                         # Database connection and session config
+│   │   ├── models/                     # SQLAlchemy models (User, Trip, Comment, etc.)
+│   │   ├── routes/                     # API route definitions
+│   │   ├── schemas/                    # Pydantic request/response schemas
+│   │   ├── services/                   # Core service logic
+│   │   ├── static/                     # Static files (if applicable)
+│   │   ├── client-secret.json          # OAuth2 credentials (ignored in .gitignore)
+│   │   └── requirements.txt            # Backend dependencies
+│   ├── integration_tests/              # End-to-end API tests
+│   ├── unit_tests/                     # Unit tests for backend services
+│   └── Dockerfile                      # Docker config for backend
 │
-├── frontend/              # React frontend application
-│   ├── public/              # Static assets (index.html, icons, etc.)
+├── frontend/                           # React frontend application
+│   ├── public/                         # Static assets (index.html, icons, etc.)
 │   ├── src/
-│   │   ├── components/      # Reusable UI components
-│   │   ├── context/         # React context providers (e.g., auth, theme)
-│   │   ├── css/             # Custom global CSS files
-│   │   ├── layouts/         # Page layout components (e.g., Navbar, Footer)
-│   │   ├── pages/           # Main pages (Trips, Login, AI Planner, etc.)
-│   │   ├── services/        # Axios service functions
-│   │   ├── tests/           # Unit tests for frontend components
-│   │   ├── App.js           # Root component
-│   │   └── AppRouter.js     # Routing logic
-│   ├── Dockerfile           # Docker config for frontend
-│   ├── nginx.conf           # Nginx configuration for static deployment
-│   └── package.json         # Project metadata and dependencies
+│   │   ├── components/                 # Reusable UI components
+│   │   ├── context/                    # React context providers (e.g., auth, theme)
+│   │   ├── css/                        # Custom global CSS files
+│   │   ├── layouts/                    # Page layout components (e.g., Navbar, Footer)
+│   │   ├── pages/                      # Main pages (Trips, Login, AI Planner, etc.)
+│   │   ├── services/                   # Axios service functions
+│   │   ├── tests/                      # Unit tests for frontend components
+│   │   ├── App.js                      # Root component
+│   │   └── AppRouter.js                # Routing logic
+│   ├── Dockerfile                      # Docker config for frontend
+│   ├── nginx.conf                      # Nginx configuration for static deployment
+│   └── package.json                    # Project metadata and dependencies
 │
-├── docker-compose.yml     # Service orchestration file
-├── .env                   # Environment variables for local development
-├── venv/                  # Python virtual environment (not tracked in Git)
-├── Makefile               # CLI shortcuts for testing and setup
-└── README.md              # Project documentation
+├── docker-compose.yml                  # Service orchestration file
+├── .env                                # Environment variables for local development
+├── venv/                               # Python virtual environment (not tracked in Git)
+├── Makefile                            # CLI shortcuts for testing and setup
+└── README.md                           # Project documentation
 ```
+
+---
+
+🏗️ Microservices Architecture
+
+![Microservices Architecture](backend/app/static/Architecture.png)
 
 ---
 
