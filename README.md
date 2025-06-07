@@ -9,7 +9,13 @@
 
 ### 🎥 Demo Video
 
-[![Watch the demo](https://img.youtube.com/vi/hd9tCDCIjXE/0.jpg)](https://youtu.be/hd9tCDCIjXE)
+<a href="https://youtu.be/hd9tCDCIjXE" target="_blank">
+  <img 
+    src="frontend/public/Demo.png" 
+    alt="PlanNGo App Demo" 
+    width="100%"
+  />
+</a>
 
 ---
 
@@ -106,7 +112,7 @@ plan_n_go/
 
 ## 🏗️ Microservices Architecture
 
-![Microservices Architecture](backend/app/static/Architecture.png)
+![Microservices Architecture](frontend/public/Architecture.png)
 
 ---
 
