@@ -317,6 +317,7 @@ PlanNGo simplifies the complexity of trip planning with smart tools, personalize
 
 Feel free to contribute, report issues, or suggest enhancements.
 
+
 ---
 <div align="center">
   <p><strong>Built by Lian Cohen</strong></p>
