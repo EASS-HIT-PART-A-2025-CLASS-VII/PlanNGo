@@ -317,6 +317,8 @@ PlanNGo simplifies the complexity of trip planning with smart tools, personalize
 
 Feel free to contribute, report issues, or suggest enhancements.
 
-**Lian Cohen**
-
-**Email:Liancohen0104@gmail.com**
+---
+<div align="center">
+  <p><strong>Built by Lian Cohen</strong></p>
+  <p><a href="mailto:Liancohen0104@gmail.com">Liancohen0104@gmail.com</a></p>
+</div>
