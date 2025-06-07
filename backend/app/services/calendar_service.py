@@ -14,7 +14,7 @@ user_tokens = {}
 
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
-CLIENT_SECRETS_FILE = "app/client_secret.json"
+CLIENT_SECRETS_FILE = "app/client-secret.json"
 
 SCOPES = [
     "https://www.googleapis.com/auth/calendar.events",
