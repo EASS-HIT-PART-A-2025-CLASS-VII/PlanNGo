@@ -29,7 +29,6 @@ import "../css/TripCard.css";
 
 export default function TripCard({ trip, onUnfavorited, onDeleted, onUpdated }) {
   const { user } = useAuth();
-  const isAdmin = user?.is_admin;
   const [budget, setBudget] = useState(null);
   const [isFavorite, setIsFavorite] = useState(false);
   const [travelerCount, setTravelerCount] = useState("");
@@ -262,6 +261,7 @@ export default function TripCard({ trip, onUnfavorited, onDeleted, onUpdated }) 
     try {
       await convertToRecommended(trip.id);
       alert("Trip converted to recommended.");
+      navigate("/recommended");
     } catch (err) {
         if (err.response?.data?.detail) {
           alert(err.response.data.detail);

@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
-import { updateUserProfile, forgotPassword } from "../services/api";
+import { updateUserProfile, forgotPassword, getProfile } from "../services/api";
 import "../css/Profile.css";
 import "../css/Form.css";
 
@@ -24,7 +24,7 @@ export default function Profile() {
         imageUrl: user.profile_image_url || "",
       });
     }
-  }, [user]);
+  }, [user?.username, user]);
 
   const uploadToCloudinary = async (file) => {
     const formData = new FormData();
@@ -43,12 +43,10 @@ export default function Profile() {
       const uploadedUrl = await uploadToCloudinary(file);
       await updateUserProfile({ update_profile_image_url: uploadedUrl });
 
-      // עדכון מקומי
       setImageUrl(uploadedUrl);
       setMessage("Profile image updated successfully!");
       setInitialData((prev) => ({ ...prev, imageUrl: uploadedUrl }));
 
-      // עדכון גלובלי בקונטקסט
       setUser((prevUser) => ({
         ...prevUser,
         profile_image_url: uploadedUrl,
@@ -75,17 +73,24 @@ export default function Profile() {
       await updateUserProfile(payload);
       setMessage("Profile updated successfully!");
       setInitialData((prev) => ({ ...prev, username }));
+
+      
+      console.log("set user");
+      const refreshed = await getProfile();
+      console.log("me מהשרת:", refreshed.data);
+      setUser(refreshed.data);
+
     } catch (err) {
-        if (err.response?.data?.detail) {
-          alert(err.response.data.detail);
-        } else if (err.response?.data) {
-          alert(JSON.stringify(err.response.data));
-        } else if (err.message) {
-          alert(err.message);
-        } else {
-          alert("Something went wrong");
-        }
+      if (err.response?.data?.detail) {
+        alert(err.response.data.detail);
+      } else if (err.response?.data) {
+        alert(JSON.stringify(err.response.data));
+      } else if (err.message) {
+        alert(err.message);
+      } else {
+        alert("Something went wrong");
       }
+    }
   };
 
   const handleResetRequest = async () => {

@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { useAuth } from "../context/AuthContext"; // הנחה שיש לך context עם user
+import { useAuth } from "../context/AuthContext"; 
 import "../css/Navbar.css";
 
 export default function Navbar({ role }) {
   const location = useLocation();
   const isActive = (path) => location.pathname === path;
   const [showMenu, setShowMenu] = useState(false);
-  const { user } = useAuth(); // נשתמש בזה כדי להביא את השם והתמונה
+  const { user } = useAuth();
 
   const toggleMenu = () => setShowMenu(!showMenu);
 
