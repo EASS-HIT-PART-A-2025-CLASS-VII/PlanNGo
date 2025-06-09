@@ -8,7 +8,19 @@ test-backend:
 
 # הרצת בדיקות אינטגרציה בק
 integration-test:
-	cd backend && pip install -r app/requirements.txt && TESTING=1 pytest integration_tests/integration_test.py -v
+	@echo "🔍 Checking if ai_service is running on port 8001..."
+	@if ! nc -z localhost 8001; then \
+		echo "🚀 ai_service not running – starting it via Docker..."; \
+		docker compose up -d ai-service; \
+		echo "⏳ Waiting for ai_service to become ready..."; \
+		until nc -z localhost 8001; do sleep 1; done; \
+		echo "✅ ai_service is up."; \
+	else \
+		echo "✅ ai_service already running."; \
+	fi
+	cd backend && \
+	pip install -r app/requirements.txt && \
+	TESTING=1 pytest integration_tests/integration_test.py -v
 
 # הרצת בדיקות פרונט
 test-frontend:
