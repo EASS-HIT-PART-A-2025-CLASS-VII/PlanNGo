@@ -2,6 +2,7 @@ import { useState } from "react";
 import { signup } from "../services/api";
 import { useNavigate } from "react-router-dom";
 import "../css/Form.css";
+import uploadToCloudinary from "../services/cloudinary_service"
 
 export default function Signup() {
   const [form, setForm] = useState({
@@ -23,18 +24,6 @@ export default function Signup() {
       [name]: files ? files[0] : value,
     }));
     setError("");
-  };
-
-  const uploadToCloudinary = async (file) => {
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", "unsigned_preset");
-    const res = await fetch("https://api.cloudinary.com/v1_1/dwjhklkuy/image/upload", {
-      method: "POST",
-      body: formData,
-    });
-    const data = await res.json();
-    return data.secure_url;
   };
 
   const handleSubmit = async (e) => {

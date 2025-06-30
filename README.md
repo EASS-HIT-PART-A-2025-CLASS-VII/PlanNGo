@@ -173,6 +173,8 @@ source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
 
 ### 3. Create a `.env` file in the project root with:
 
+### 3. Create a `.env` file in the project root with:
+
 ```env
 # === 🔐 Backend Auth ===
 SECRET_KEY=your_custom_secret_key_here
@@ -190,6 +192,10 @@ EMAIL_PORT=587
 
 # === 🧠 AI Service ===
 OPENAI_API_KEY=your_openai_api_key_here
+
+# === ☁️ Cloudinary (for image uploads) ===
+CLOUDINARY_CLOUD_NAME=your_cloud_name_here
+CLOUDINARY_UPLOAD_PRESET=your_unsigned_preset_name
 ```
 
 > ⚠️ **Important:** Do NOT commit the `.env` file to Git. Keep it private.
@@ -229,6 +235,17 @@ Make sure the database exists and is accessible.
 1. Sign up at [https://platform.openai.com/](https://platform.openai.com/)
 2. Go to your API keys page
 3. Create a new secret key and paste it in `OPENAI_API_KEY`
+
+#### ☁️ CLOUDINARY_CLOUD_NAME & CLOUDINARY_UPLOAD_PRESET
+1. Go to [https://cloudinary.com/console](https://cloudinary.com/console) and log in to your account
+2. Under the **Dashboard**, locate your **Cloud name** — copy it into `CLOUDINARY_CLOUD_NAME`
+3. To create an upload preset:
+   - Click **Go to API Keys > Upload > Add upload preset**
+   - Set the name (e.g., `unsigned_preset`)
+   - Set **Signing Mode** to `Unsigned`
+   - Optionally choose a default upload folder
+   - Click **Save**
+4. Copy the name you chose into `CLOUDINARY_UPLOAD_PRESET`
 
 ### 4. Google Calendar Integration
 
