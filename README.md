@@ -173,8 +173,6 @@ source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
 
 ### 3. Create a `.env` file in the project root with:
 
-### 3. Create a `.env` file in the project root with:
-
 ```env
 # === 🔐 Backend Auth ===
 SECRET_KEY=your_custom_secret_key_here
@@ -194,8 +192,9 @@ EMAIL_PORT=587
 OPENAI_API_KEY=your_openai_api_key_here
 
 # === ☁️ Cloudinary (for image uploads) ===
-CLOUDINARY_CLOUD_NAME=your_cloud_name_here
-CLOUDINARY_UPLOAD_PRESET=your_unsigned_preset_name
+REACT_APP_CLOUDINARY_CLOUD_NAME=your_cloud_name_here
+REACT_APP_CLOUDINARY_UPLOAD_PRESET=your_unsigned_preset_name
+
 ```
 
 > ⚠️ **Important:** Do NOT commit the `.env` file to Git. Keep it private.

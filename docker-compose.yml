@@ -42,7 +42,11 @@ services:
       - app-network
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      args:
+        REACT_APP_CLOUDINARY_CLOUD_NAME: ${REACT_APP_CLOUDINARY_CLOUD_NAME}
+        REACT_APP_CLOUDINARY_UPLOAD_PRESET: ${REACT_APP_CLOUDINARY_UPLOAD_PRESET}
     ports:
       - "3000:80"
     depends_on:

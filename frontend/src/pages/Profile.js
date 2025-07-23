@@ -63,10 +63,7 @@ export default function Profile() {
       setMessage("Profile updated successfully!");
       setInitialData((prev) => ({ ...prev, username }));
 
-      
-      console.log("set user");
       const refreshed = await getProfile();
-      console.log("me מהשרת:", refreshed.data);
       setUser(refreshed.data);
 
     } catch (err) {
