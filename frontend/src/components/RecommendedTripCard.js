@@ -428,7 +428,7 @@ export default function RecommendedTripCard({ trip, onUnfavorited, onUpdated, on
         {!isAdmin && (
           <div className="trip-actions">
             <button className="trip-btn outline" onClick={(e) => { e.stopPropagation(); setShowTravelersModal(true); }}>
-              <FaDollarSign /> {budget != null ? `${budget} $` : "Budget"}
+              <FaDollarSign /> {budget != null ? `${budget} ` : "Budget"}
             </button>
             <button className="trip-btn outline" onClick={(e) => { e.stopPropagation(); setShowEmailModal(true); }}>
               <FaEnvelope /> Summary

@@ -4,6 +4,7 @@
 import os
 from fastapi import FastAPI
 from app.db.database import Base, engine
+from app.db.database import create_all_tables
 from fastapi.staticfiles import StaticFiles
 from app.routes import auth
 from app.routes import trip
@@ -51,7 +52,11 @@ app.include_router(calendar.router, prefix="/api")
 # AI מחבר את הנתיבים שתחת
 app.include_router(ai.router, prefix="/api")
 
+# פונקציית התראה כמה ימים לפני שטיול מתחיל
 start_reminder_scheduler()
+
+# יוצר טבלאות אם לא קיימות
+create_all_tables()
 
 # יצירת תיקיית static אם לא קיימת
 static_dir = os.path.join(os.path.dirname(__file__), "static")

@@ -7,7 +7,6 @@ load_dotenv()
 
 Base = declarative_base()
 
-# בדיקות - משתמש ב־SQLite בזיכרון
 if os.getenv("TESTING") == "1":
     from sqlalchemy.pool import StaticPool
     SQLALCHEMY_DATABASE_URL = "sqlite://"

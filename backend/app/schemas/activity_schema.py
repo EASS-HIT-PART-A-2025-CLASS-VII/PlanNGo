@@ -10,7 +10,7 @@ class ActivityCreate(BaseModel):
     time: Optional[dtime] = None           # שעה מדויקת (אופציונלית)
     title: str                            # שם הפעילות
     description: Optional[str] = None  # תיאור הפעילות
-    location_name: str       
+    location_name: str 
 
 # מה שנחזיר בתגובה
 class ActivityOut(ActivityCreate):

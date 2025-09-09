@@ -370,6 +370,7 @@ export default function TripCard({ trip, onUnfavorited, onDeleted, onUpdated }) 
               <p><span className="icon">📝</span>{editedTrip.description}</p>
               <p><span className="icon">⏳</span>{editedTrip.duration_days} days</p>
               <p><span className="icon">🗓️</span>{editedTrip.start_date} - {editedTrip.end_date}</p>
+        
             </div>
           </>
         )}
@@ -377,7 +378,7 @@ export default function TripCard({ trip, onUnfavorited, onDeleted, onUpdated }) 
         {!isEditing && (
           <div className="trip-actions">
             <button className="trip-btn outline" onClick={(e) => { e.stopPropagation(); setShowTravelersModal(true); }}>
-              <FaDollarSign /> {budget != null ? `${budget} $` : "Budget"}
+              <FaDollarSign /> {budget != null ? `${budget} ` : "Budget"}
             </button>
             <button className="trip-btn outline" onClick={handleSummary}>
               <FaEnvelope /> Summary

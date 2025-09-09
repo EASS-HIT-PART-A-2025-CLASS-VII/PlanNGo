@@ -15,12 +15,8 @@ load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 # AI יצירת טיול
-def custom_trip_plan(
-    destination: str,
-    num_days: int,
-    num_travelers: int,
-    trip_type: Optional[str] = None
-) -> Tuple[List[dict], float]:
+def custom_trip_plan(destination: str,num_days: int,num_travelers: int,trip_type: Optional[str] = None) -> Tuple[List[dict], float]:
+    
     MAX_DAYS_PER_REQUEST = 10
     visited_places = set()
     all_days = []
