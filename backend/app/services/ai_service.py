@@ -42,3 +42,17 @@ def get_trip_types():
     if response.status_code != 200:
         raise Exception("Failed to fetch trip types")
     return response.json()
+
+def trip_advisor_chat_ai(chat_data: dict):
+    response = requests.post(
+        f"{TRIP_AI_SERVICE_URL}/trip-ai/trip-advisor",
+        json=chat_data
+    )
+
+    if response.status_code != 200:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to process Trip Advisor Chat via AI service"
+        )
+
+    return response.json()

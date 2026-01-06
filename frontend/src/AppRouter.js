@@ -17,6 +17,7 @@ import ForgotPasswordRequest from "./pages/ForgotPasswordRequest";
 // Pages - משתמש רגיל
 import Profile from "./pages/Profile";
 import Trips from "./pages/Trips";
+import ChatAdvisor from "./components/ChatAdvisor";
 
 // Pages - אדמין
 import UsersManagement from "./pages/UsersManagement";
@@ -62,6 +63,7 @@ export default function AppRouter() {
             <Route path="ai" element={<AiTripPlanner />} />
             <Route path="ai/trip-result" element={<AiTripResult />} />
             <Route path="profile" element={<Profile />} />
+            <Route path="chat" element={<ChatAdvisor />} />
             <Route path="*" element={<NotFound />} /> 
           </Route>
         )}

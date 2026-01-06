@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter
 from app.services import ai_service
-from app.schemas.ai_schema import TripRequestAI
+from app.schemas.ai_schema import TripRequestAI, TripAdvisorChatRequest, TripAdvisorChatResponse
 
 router = APIRouter(prefix="/ai", tags=["AI Services"])
 
@@ -20,3 +20,8 @@ def calculate_budget_via_ai(trip_id: int, num_travelers: int):
 @router.get("/trip-types")
 def trip_types():
     return ai_service.get_trip_types()
+
+@router.post("/trip-advisor-chat", response_model=TripAdvisorChatResponse)
+def trip_advisor_chat_via_ai(req: TripAdvisorChatRequest):
+    result = ai_service.trip_advisor_chat_ai(req.model_dump())
+    return result

@@ -132,5 +132,7 @@ export const generateCustomTrip = (data) =>
 export const calculateTripBudget = (tripId, num_travelers) =>
   api.post(`/ai/calculate-budget/${tripId}?num_travelers=${num_travelers}`);
 export const getTripTypes = () => api.get("/ai/trip-types");
+export const chatWithAdvisor = (sessionId, userMessage, conversationHistory) =>
+  api.post("/ai/trip-advisor-chat", { session_id: sessionId, user_message: userMessage, conversation_history: conversationHistory });
 
 export default api;

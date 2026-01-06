@@ -19,6 +19,13 @@ class AiTripSummaryRequest(BaseModel):
 class BudgetRequest(BaseModel):
     num_travelers: int
     
-    
 class BudgetResponse(BaseModel):
     estimated_budget: float
+    
+class TripAdvisorChatRequest(BaseModel):
+    session_id: str
+    user_message: str
+    conversation_history: List[Dict[str, str]] = []
+
+class TripAdvisorChatResponse(BaseModel):
+    reply: str

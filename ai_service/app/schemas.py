@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional, Dict
 from enum import Enum
 
 # סוגי טיול
@@ -40,3 +40,11 @@ class BudgetRequest(BaseModel):
 
 class BudgetResponse(BaseModel):
     estimated_budget: float
+
+class TripAdvisorChatRequest(BaseModel):
+    session_id: str
+    user_message: str
+    conversation_history: List[Dict[str, str]] = []
+
+class TripAdvisorChatResponse(BaseModel):
+    reply: str

@@ -2,7 +2,8 @@
 
 from fastapi import APIRouter, HTTPException
 from fastapi import Query
-from app.schemas import TripRequest, TripResponse, BudgetRequest, BudgetResponse, TripType
+from app.schemas import TripRequest, TripResponse, BudgetResponse, TripType
+from app.schemas import TripAdvisorChatRequest, TripAdvisorChatResponse
 from app import services
 
 router = APIRouter(prefix="/trip-ai", tags=["Trip AI Service"])
@@ -55,3 +56,8 @@ async def calculate_trip_budget(trip_id: int, num_travelers: int = Query(...)):
 @router.get("/trip-types", response_model=list[str])
 def get_trip_types():
     return [style.value for style in TripType]
+
+# צ'אט בוט לייעוץ טיולים
+@router.post("/trip-advisor", response_model=TripAdvisorChatResponse)
+def chat_trip_advisor(req: TripAdvisorChatRequest):
+    return services.trip_advisor_chat(req)
