@@ -3,15 +3,27 @@
 
 ## 📖 Overview
 
-**PlanNGo** is a microservices-based platform for planning, managing, and sharing personal and recommended trips. It enables users to create daily itineraries, view AI-generated suggestions, interact with public trips, and manage content with admin permissions.
+**PlanNGo** is a microservices-based platform for planning, managing, and sharing personal and recommended trips.
+The system includes an AI-powered Trip Advisor chatbot that guides users through a conversational flow to clarify their travel preferences, which are then used to generate a personalized AI-created trip itinerary.
+Users can create and manage daily trip plans, explore AI-generated itineraries, interact with public and recommended trips, and manage content through role-based admin permissions.
 
 ---
 
-### 🎥 Demo Video
+### 🎥 Demo Videos
 
+▶️ **Full Platform Overview** 
 <a href="https://youtu.be/hd9tCDCIjXE" target="_blank">
   <img 
     src="frontend/public/Demo.png" 
+    alt="PlanNGo App Demo" 
+    width="100%"
+  />
+</a>
+
+▶️ **AI Trip Advisor Chatbot & AI Trip Planning**
+<a href="https://youtu.be/aD4DUJJf4lo" target="_blank">
+  <img 
+    src="frontend/public/Demo2.png" 
     alt="PlanNGo App Demo" 
     width="100%"
   />
