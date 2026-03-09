@@ -12,7 +12,7 @@ Users can create and manage daily trip plans, explore AI-generated itineraries, 
 ### 🎥 Demo Videos
 
 ▶️ **Full Platform Overview** 
-<a href="https://youtu.be/hd9tCDCIjXE" target="_blank">
+<a href="https://youtu.be/RXNt56MoH1g" target="_blank">
   <img 
     src="frontend/public/Demo.png" 
     alt="PlanNGo App Demo" 
